@@ -24,6 +24,8 @@ INCOMPATIBLE CHANGES
 
 IMPROVEMENTS
 
+PIG-2941: Ivy resolvers in pig don't have consistent chaining and don't have a kitchen sink option for novices (jgordon via azaroth)
+
 PIG-2786: enhance Pig launcher script wrt. HBase/HCat integration (ndimiduk via daijy)
 
 PIG-200: Pig Performance Benchmarks (daijy)
