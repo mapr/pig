@@ -45,7 +45,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -148,7 +147,6 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
     private final static String HBASE_TOKEN_SET = "hbase.token.set";
 
     private List<ColumnInfo> columnInfo_ = Lists.newArrayList();
-    private HTable m_table;
 
     //Use JobConf to store hbase delegation token
     private JobConf m_conf;
@@ -378,6 +376,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
 
         // Map-reduce jobs should not run with cacheBlocks
         scan.setCacheBlocks(false);
+        scan.setCaching(caching_);
 
         // Set filters, if any.
         if (configuredOptions_.hasOption("gt")) {
@@ -676,10 +675,6 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
         if (location.startsWith("hbase://")) {
             tablename = location.substring(8);
         }
-        if (m_table == null) {
-            m_table = new HTable(m_conf, tablename);
-        }
-        m_table.setScannerCaching(caching_);
         m_conf.set(TableInputFormat.INPUT_TABLE, tablename);
 
         String projectedFields = udfProps.getProperty( projectedFieldsName() );

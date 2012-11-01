@@ -34,6 +34,10 @@ PIG-2769: a simple logic causes very long compiling time on pig 0.10.0 (njw45 vi
 
 BUG FIXES
 
+PIG-2251: PIG leaks Zookeeper connections when using HBaseStorage (jamarkha via cheolsoo)
+
+PIG-2933: HBaseStorage is using setScannerCaching which is deprecated (prkommireddi via rohini)
+
 PIG-3145: Parameters in core-site.xml and mapred-site.xml are not correctly substituted (cheolsoo)
 
 PIG-3071: Update hcatalog jar and path to hbase storage handler jar in pig script (arpitgupta via cheolsoo)
