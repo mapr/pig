@@ -34,6 +34,8 @@ PIG-2769: a simple logic causes very long compiling time on pig 0.10.0 (njw45 vi
 
 BUG FIXES
 
+PIG-2924: PigStats should not be assuming all Storage classes to be file-based storage (cheolsoo)
+
 PIG-2266: Bug with input file joining optimization in Pig (jadler via cheolsoo)
 
 PIG-2251: PIG leaks Zookeeper connections when using HBaseStorage (jamarkha via cheolsoo)
