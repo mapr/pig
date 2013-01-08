@@ -30,6 +30,7 @@ import java.util.HashMap;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FsStatus;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.pig.PigException;
@@ -111,16 +112,13 @@ public class HDataStorage implements DataStorage {
         long usedBytes = fs.getUsed();
         stats.put(USED_BYTES_KEY , Long.valueOf(usedBytes).toString());
         
-        if (fs instanceof DistributedFileSystem) {
-            DistributedFileSystem dfs = (DistributedFileSystem) fs;
-            
-            long rawCapacityBytes = dfs.getRawCapacity();
-            stats.put(RAW_CAPACITY_KEY, Long.valueOf(rawCapacityBytes).toString());
-            
-            long rawUsedBytes = dfs.getRawUsed();
-            stats.put(RAW_USED_KEY, Long.valueOf(rawUsedBytes).toString());
-        }
         
+        FsStatus status = fs.getStatus();
+        long rawCapacityBytes = status.getCapacity();
+        stats.put(RAW_CAPACITY_KEY, Long.valueOf(rawCapacityBytes).toString());
+        
+        long rawUsedBytes = status.getUsed();
+        stats.put(RAW_USED_KEY, Long.valueOf(rawUsedBytes).toString());
         return stats;
     }
     

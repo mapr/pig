@@ -137,7 +137,7 @@ public class QueryParserUtils {
              URI uri = p.toUri();
              if(uri.isAbsolute()) {
                  String scheme = uri.getScheme();
-                 if (scheme!=null && scheme.toLowerCase().equals("hdfs")||scheme.toLowerCase().equals("har")) {
+                 if (scheme!=null) {
                      if (uri.getHost()==null)
                          continue;
                      String thisHost = uri.getHost().toLowerCase();
@@ -149,9 +149,9 @@ public class QueryParserUtils {
                      if (!uri.getHost().isEmpty() && 
                              !thisHost.equals(defaultHost)) {
                          if (uri.getPort()!=-1)
-                             result.add("hdfs://"+thisHost+":"+uri.getPort());
+                             result.add(uri.getScheme() + "://"+thisHost+":"+uri.getPort());
                          else
-                             result.add("hdfs://"+thisHost);
+                             result.add(uri.getScheme() + "://"+thisHost);
                      }
                  }
              }
