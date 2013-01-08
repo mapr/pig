@@ -20,6 +20,7 @@ package org.apache.pig.tools.pigstats;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -368,8 +369,9 @@ public final class JobStats extends Operator {
                     PigStatsUtil.REDUCE_INPUT_RECORDS).getCounter();
             reduceOutputRecords = taskgroup.getCounterForName(
                     PigStatsUtil.REDUCE_OUTPUT_RECORDS).getCounter();
+	    String fsuri = URI.create(conf.get("fs.default.name")).getScheme().toUpperCase();
             hdfsBytesRead = hdfsgroup.getCounterForName(
-                    PigStatsUtil.HDFS_BYTES_READ).getCounter();      
+                    fsuri+"_BYTES_WRITTEN").getCounter();      
             hdfsBytesWritten = hdfsgroup.getCounterForName(
                     PigStatsUtil.HDFS_BYTES_WRITTEN).getCounter();            
             spillCount = counters.findCounter(

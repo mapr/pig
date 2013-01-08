@@ -596,7 +596,15 @@ public class JobControlCompiler{
 
                 // set out filespecs
                 String outputPathString = st.getSFile().getFileName();
-                if (!outputPathString.contains("://") || outputPathString.startsWith("hdfs://")) {
+		URI fileuri = null;
+                try {
+                   fileuri = new URI(outputPathString);
+                 } catch(URISyntaxException e) {
+                       throw new JobCreationException("URISyntaxException:Output Path URI is malformed:" + fileuri);
+                 }
+                 if ((fileuri.getScheme()==null && fileuri.getAuthority()==null)
+                     || !fileuri.getScheme().equals("file:///")) {
+ 
                     conf.set("pig.streaming.log.dir",
                             new Path(outputPathString, LOG_DIR).toString());
                 } else {
