@@ -180,6 +180,8 @@ PIG-2228: support partial aggregation in map task (thejas)
 
 BUG FIXES
 
+PIG-2251: PIG leaks Zookeeper connections when using HBaseStorage (jamarkha via cheolsoo)
+
 PIG-2195: AvroStorage fails to STORE when LOADing via PigStorage (billgraham via gates)
 
 PIG-2202: AvroStorage doesn't work with Avro 1.5.1 (billgraham via gates)
