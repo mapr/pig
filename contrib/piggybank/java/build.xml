@@ -36,7 +36,7 @@
     <property name="pigtest" value="../../../build/test/classes" />
     <property name="udfjar" value="piggybank.jar" />
     <property name="src.dir" value="src/main/java/org/apache/pig/piggybank" />
-   <property name="hsqldb.jar" value="../../../build/ivy/lib/Pig/hsqldb-1.8.0.10.jar"/>
+    <property name="hsqldb.jar" value="../../../build/ivy/lib/Pig/hsqldb-1.8.0.10.jar"/>
 
 	<!-- JobHistoryLoader currently does not support 0.23 -->
     <condition property="build.classes.excludes" value="**/HadoopJobHistoryLoader.java" else="">
@@ -58,7 +58,17 @@
     <property name="test.src.dir" value="src/test/java" />
     <property name="junit.hadoop.conf" value="${user.home}/pigtest/conf/"/>
 
+    <!--path id="pigudf.classpath">
+        <pathelement location="${build.classes}"/>
+        <pathelement location="${pigjar-withouthadoop}"/>
+        <pathelement location="${pigtest}"/>
+        <fileset dir="../../../build/ivy/lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path-->
+
     <path id="pigudf.classpath">
+        <pathelement location="../../../build/classes"/>
         <pathelement location="${build.classes}"/>
         <pathelement location="${pigjar-withouthadoop}"/>
         <pathelement location="${pigtest}"/>
