@@ -22,7 +22,9 @@
     <!-- to contribute (without having to type -D or edit this file -->
     <property file="${user.home}/build.properties" />
     <property file="${basedir}/build.properties" />
-
+	 <presetdef name="javac">
+	    <javac includeantruntime="false" />
+	  </presetdef>
     <!-- name and version properties -->
     <property name="name" value="pig" />
     <property name="Name" value="Pig" />
@@ -59,8 +61,9 @@
     <property name="javac.debug" value="on" />
     <property name="javac.optimize" value="on" />
     <property name="javac.deprecation" value="off" />
-    <property name="javac.version" value="1.5" />
+    <property name="javac.version" value="1.7" />
     <property name="javac.args" value="" />
+
     <!-- default warnings option -->
     <property name="javac.args.warnings" value="-Xmaxwarns 1000000" />
     <!-- warnings option if all.warnings property is set on cmdline -->

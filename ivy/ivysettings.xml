@@ -30,6 +30,7 @@
           http://www.ibiblio.net/pub/packages/maven2
   -->
   <property name="repo.maven.org" value="${mvnrepo}" override="true"/>
+  <property name="repo.mapr-central" value="http://repository.mapr.com/nexus/content/repositories/releases/"/>
   <property name="repo.jboss.org" value="http://repository.jboss.com/nexus/content/groups/public/" override="false"/>
   <property name="repo.apache.snapshots" value="http://repository.apache.org/content/groups/snapshots-group/" override="false"/>
   <property name="repo.dir" value="${user.home}/.m2/repository"/>
@@ -39,11 +40,12 @@
   <property name="resolvers" value="default" override="false"/>
   <property name="force-resolve" value="false" override="false"/>
   <!-- pull in the local repository -->
-  <include url="${user.home}/.ivy2/ivysettings-public.xml"/>
+  <!--include url="${user.home}/.ivy2/ivysettings-public.xml"/ -->
   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
   <settings defaultResolver="${resolvers}"/>
   <resolvers>
     <ibiblio name="maven2" root="${repo.maven.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
+    <ibiblio name="mapr-central" root="${repo.mapr-central}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="jboss-maven2" root="${repo.jboss.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="apache-snapshots" root="${repo.apache.snapshots}" pattern="${snapshot.pattern}" checkmodified="true" m2compatible="true"/>
     <filesystem name="fs" m2compatible="true" checkconsistency="false" force="${force-resolve}">

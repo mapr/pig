@@ -96,12 +96,12 @@
       conf="compile->master"/>
     <dependency org="com.sun.jersey" name="jersey-core" rev="${jersey-core.version}"
       conf="hadoop20->default"/>
-    <dependency org="com.mapr.hadoop" name="hadoop-all" rev="${hadoop-all.version}"
+    <dependency org="org.apache.hadoop" name="hadoop-core" rev="1.0.3-mapr-2.1.2.1"
       conf="hadoop20->default">
-      <artifact name="hadoop-all" type="pom" ext="pom"/>
     </dependency>
-    <dependency org="com.mapr.hadoop" name="hadoop-test" rev="${hadoop-test.version}"
+    <dependency org="org.apache.hadoop" name="hadoop-test" rev="1.0.3-mapr-2.1.2.1"
       conf="hadoop20->default"/>
+
     <dependency org="org.apache.hadoop" name="hadoop-annotations" 
       rev="${hadoop-common.version}" conf="hadoop23->master"/>
     <dependency org="org.apache.hadoop" name="hadoop-auth" 
@@ -199,7 +199,7 @@
 
     <dependency org="org.jruby" name="jruby-complete" rev="${jruby.version}" conf="compile->master"/>
 
-    <dependency org="com.mapr.hbase" name="hbase" rev="${hbase.version}" conf="compile->master">
+    <dependency org="org.apache.hbase" name="hbase" rev="${hbase.version}" conf="compile->master">
       <!-- artifact name="hbase" type="pom" ext="pom"/ -->
       <artifact name="hbase" type="jar"/>
       <artifact name="hbase" type="test-jar" ext="jar" m:classifier="tests"/>

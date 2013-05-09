@@ -134,7 +134,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
     private final static String COLON = ":";
     
     private List<ColumnInfo> columnInfo_ = Lists.newArrayList();
-    private HTable m_table;
+    
     private Configuration m_conf;
     private RecordReader reader;
     private RecordWriter writer;
@@ -541,10 +541,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
         if (location.startsWith("hbase://")){
            tablename = location.substring(8);
         }
-        if (m_table == null) {
-            m_table = new HTable(m_conf, tablename);
-        }
-        m_table.setScannerCaching(caching_);
+        
         m_conf.set(TableInputFormat.INPUT_TABLE, tablename);
 
         String projectedFields = getUDFProperties().getProperty( projectedFieldsName() );
