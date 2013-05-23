@@ -30,7 +30,7 @@
     <property name="pig.pom" value="${basedir}/ivy/pig.pom" />
     <property name="pigsmoke.pom" value="${basedir}/ivy/pigsmoke.pom" />
     <property name="pigunit.pom" value="${basedir}/ivy/pigunit.pom" />
-    <property name="pig.version" value="0.11.2" />
+    <property name="pig.version" value="0.11.2-mapr" />
     <property name="pig.version.suffix" value="-SNAPSHOT" />
     <property name="version" value="${pig.version}${pig.version.suffix}" />
     <property name="final.name" value="${name}-${version}" />
@@ -55,6 +55,8 @@
     <!-- property name="build.encoding" value="ISO-8859-1" / -->
     <property name="build.encoding" value="UTF8" />
 
+    <property name="automaton.jarfile" value="automaton.jar" />
+
     <!-- javac properties -->
     <property name="javac.debug" value="on" />
     <property name="javac.optimize" value="on" />
@@ -66,23 +68,14 @@
     <!-- warnings option if all.warnings property is set on cmdline -->
     <property name="javac.args.all.warnings" value="-Xmaxwarns 1000000 -Xlint -Xlint:-deprecation" />
 
-    <!-- artifact jar file names -->
-    <property name="artifact.pig.jar" value="${final.name}.jar"/>
-    <property name="artifact.pig-h2.jar" value="${final.name}-h2.jar"/>
-    <property name="artifact.pig-withouthadoop.jar" value="${final.name}-withouthadoop.jar"/>
-    <property name="artifact.pig-withdependencies.jar" value="${final.name}-withdependencies.jar"/>
-    <property name="artifact.pig-sources.jar" value="${final.name}-sources.jar"/>
-    <property name="artifact.pig-javadoc.jar" value="${final.name}-javadoc.jar"/>
-    <property name="artifact.pig.tar" value="${final.name}.tar.gz"/>
-
     <!-- jar names. TODO we might want to use the svn reversion name in the name in case it is a dev version -->
-    <property name="output.jarfile.withdependencies" value="${build.dir}/${artifact.pig-withdependencies.jar}" />
-    <property name="output.stage.jarfile.withdependencies" value="${build.dir}/${final.name}-withdependencies.stage.jar" />
-    <property name="output.jarfile.withouthadoop" value="${build.dir}/${artifact.pig-withouthadoop.jar}" />
-    <property name="output.jarfile.core" value="${build.dir}/${artifact.pig.jar}" />
-    <property name="output.jarfile.core-h2" value="${build.dir}/${artifact.pig-h2.jar}" />
-    <property name="output.jarfile.sources" value="${build.dir}/${artifact.pig-sources.jar}" />
-    <property name="output.jarfile.javadoc" value="${build.dir}/${artifact.pig-javadoc.jar}" />
+    <property name="output.jarfile" value="${build.dir}/${final.name}.jar" />
+    <property name="output.stage.jarfile" value="${build.dir}/${final.name}.stage.jar" />
+    <property name="output.jarfile.withouthadoop" value="${build.dir}/${final.name}-withouthadoop.jar" />
+    <property name="output.stage.jarfile.withouthadoop" value="${build.dir}/${final.name}-withouthadoop.stage.jar" />
+    <property name="output.jarfile.core" value="${build.dir}/${final.name}-core.jar" />
+    <property name="output.jarfile.sources" value="${build.dir}/${final.name}-sources.jar" />
+    <property name="output.jarfile.javadoc" value="${build.dir}/${final.name}-javadoc.jar" />
     <!-- Maintain old pig.jar in top level directory. -->
     <property name="output.jarfile.backcompat.withouthadoop" value="${basedir}/${name}-withouthadoop.jar" />
     <property name="output.jarfile.backcompat" value="${basedir}/${name}.jar" />
@@ -92,7 +85,7 @@
     <property name="test.build.dir" value="${build.dir}/test" />
     <property name="test.build.classes" value="${test.build.dir}/classes" />
     <property name="test.log.dir" value="${test.build.dir}/logs" />
-    <property name="test.timeout" value="7200000" />
+    <property name="test.timeout" value="3600000" />
     <property name="test.junit.output.format" value="plain" />
     <property name="test.commit.file" value="${test.src.dir}/commit-tests"/>
     <property name="test.unit.file" value="${test.src.dir}/unit-tests"/>
@@ -103,6 +96,7 @@
     <property name="pigunit.jarfile" value="pigunit.jar" />
     <property name="smoke.tests.jarfile" value="${build.dir}/${final.name}-smoketests.jar" />
     <property name="test.pigunit.src.dir" value="${test.src.dir}/org/apache/pig/test/pigunit" />
+    <property name="commons-lang.jarfile" value="commons-lang-2.4.jar" />    
     <property name="test.pigunit.file" value="${test.src.dir}/pigunit-tests"/>
 
 
@@ -110,6 +104,7 @@
     <property name="ssh.gateway" value="" />
     <property name="hod.server" value="" />
     <property name="test.log.dir" value="${basedir}/test/logs"/>
+    <property name="junit.hadoop.conf" value="${user.home}/pigtest/conf/"/>
     <property name="test.output" value="no"/>
 
     <!-- e2e test properties -->
@@ -177,7 +172,11 @@
     <property name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
     <property name="src.shims.test.dir" value="${basedir}/shims/test/hadoop${hadoopversion}" />
 
-    <property name="hadoop.jar" value="hadoop-core-${hadoop-core.version}.jar" />
+    <!-- <property name="hadoop.jar" value="${hadoop.root}/lib/hadoop-${hadoop-core.version}-dev-core.jar" /> -->
+    <property name="hadoop-core.version" value="0.20.2-2.1.2"/>
+    <property name="hadoop.jar" value="hadoop-core-${hadoop-core.version}.jar"/>
+    <property name="hbase.jar" value="hbase-${hbase.version}.jar" />
+    <property name="hbase.tests.jar" value="hbase-${hbase.version}-tests.jar" />
 	<property name="asfrepo" value="https://repository.apache.org"/>
 	<property name="asfsnapshotrepo" value="${asfrepo}/content/repositories/snapshots"/>
 	<property name="mvnrepo" value="http://repo2.maven.org/maven2"/>
@@ -210,7 +209,11 @@
     <property name="ivy.artifact.retrieve.pattern" value="${ant.project.name}/[artifact]-[revision](-[classifier]).[ext]"/>
 
     <!--this is how artifacts that get built are named-->
-    <property name="ivy.publish.pattern" value="[artifact]-[revision].[ext]"/>
+        <property name="ivy.publish.pattern" value="[artifact]-[revision].[ext]"/>
+	<property name="pig.jar" value="${output.jarfile}"/>
+	<property name="pig-core.jar" value="${output.jarfile.core}"/>	
+	<property name="pig-sources.jar" location="${build.dir}/${final.name}-sources.jar" />
+	<property name="pig-javadoc.jar" location="${build.dir}/${final.name}-javadoc.jar" />
 
     <!-- jdiff properties -->
     <property name="jdiff.jar" value="${ivy.lib.dir}/jdiff-${jdiff.version}.jar"/>
@@ -297,12 +300,16 @@
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="*.jar"/>
         <fileset file="${ivy.lib.dir}/${zookeeper.jarfile}"/>
+        <fileset file="${hadoop.jar}"/>
+        <fileset file="${hbase.jar}"/>
+        <fileset file="${hbase.tests.jar}"/>
         <fileset dir="${ivy.lib.dir}" includes="*.jar"/>
     </path>
 
     <!-- javadoc-classpath -->
     <path id="javadoc-classpath">
-	    <path refid="javadoc.classpath"/>	
+	<fileset file="${lib.dir}/${automaton.jarfile}" />
+	<path refid="javadoc.classpath"/>	
     </path> 
 
     <path id="test.classpath">
@@ -312,6 +319,7 @@
         <pathelement location="${test.src.dir}"/>
         <pathelement location="contrib/piggybank/java/piggybank.jar"/>
         <path refid="classpath"/>
+        <fileset file="${lib.dir}/sdsuLibJKD12.jar"/>
     </path>
 
     <target name="init" depends="ivy-compile" >
@@ -328,6 +336,8 @@
             <format property="timestamp" pattern="MMM dd yyyy, HH:mm:ss" />
         </tstamp>
         <svnversion outputproperty="svn.revision"/>
+       <antcall target="mapr-version" inheritRefs="true" inheritall="true"/>
+       <property file="${basedir}/mapr-build.properties"/>
     </target>
 
     <macrodef name="svnversion">
@@ -385,21 +395,6 @@
         <ant target="clean" dir="test/e2e/pig/udfs/java" inheritAll="false"/>
     </target>
 
-    <!--target name="eclipse-files" depends="compile, ivy-buildJar"
-			description="Generate files for Eclipse">
-        <pathconvert property="eclipse.project">
-            <path path="${basedir}"/>
-            <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
-        </pathconvert>
-	<copy todir="." overwrite="true">
-            <fileset dir=".eclipse.templates">
-                <exclude name="**/README.txt"/>
-            </fileset>
-            <filterset>
-                <filter token="PROJECT" value="${eclipse.project}"/>
-            </filterset>
-        </copy>
-    </target-->
 
     <!-- ================================================================== -->
     <!-- Java Compiler Compiler, generate Parsers                           -->
@@ -603,9 +598,17 @@
 	    <jar duplicate="preserve" jarfile="${output.jarfile.sources}" basedir="${src.dir}/" excludes="docs/**, overview.html">
             <manifest>
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
             <fileset dir="${src.lib.dir}/shock"/>
@@ -616,9 +619,18 @@
         <jar duplicate="preserve" jarfile="${output.jarfile.javadoc}" basedir="${build.javadoc}/">
             <manifest>
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
+
                 </section>
             </manifest>
         </jar>
@@ -627,7 +639,7 @@
     <!-- ================================================================== -->
     <!-- Utility to build pig.jar and pig-withouthadoop.jar                 -->
     <!-- ================================================================== -->
-    <target name="jar-all" depends="jar,jar-withouthadoop" description="Create pig-all.jar and pig-withouthadoop.jar">
+    <target name="jar-all" depends="jar,jar-withouthadoop,pigperf" description="Create pig-all.jar and pig-withouthadoop.jar">
     </target>
 
     <target name="include-meta" if="isHadoop23">
@@ -640,11 +652,18 @@
             <manifest>
                 <attribute name="Main-Class" value="org.apache.pig.Main" />
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
-                    <attribute name="Build-TimeStamp" value="${timestamp}" />
-                    <attribute name="Svn-Revision" value="${svnString}" />
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
+
                 </section>
             </manifest>
             <zipfileset src="${output.stage.jarfile.withdependencies}"/>
@@ -703,11 +722,17 @@
             <manifest>
                 <attribute name="Main-Class" value="org.apache.pig.Main" />
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
-                    <attribute name="Build-TimeStamp" value="${timestamp}" />
-                    <attribute name="Svn-Revision" value="${svnString}" />
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
             <fileset file="${basedir}/src/pig-default.properties" />
@@ -719,17 +744,22 @@
             <manifest>
                 <attribute name="Main-Class" value="org.apache.pig.Main" />
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
-                    <attribute name="Build-TimeStamp" value="${timestamp}" />
-                    <attribute name="Svn-Revision" value="${svnString}" />
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
+            <zipgroupfileset dir="${ivy.lib.dir}" includes="hbase-${hbase.version}.jar" />
             <zipgroupfileset dir="${ivy.lib.dir}">
-                <include name="hadoop-core-${hadoop-core.version}.jar" />
-                <include name="hadoop-*-${hadoop-common.version}.jar" />
-                <exclude name="hadoop-hdfs-${hadoop-hdfs.version}.jar" />
+                <include name="hadoop-*-${hadoop-core.version}*.jar" />
                 <include name="antlr-runtime-${antlr.version}.jar" />
                 <include name="ST4-${stringtemplate.version}.jar" />
                 <include name="junit-${junit.version}.jar" />
@@ -765,6 +795,12 @@
         <fileset dir="${basedir}" includes="test/data/pigunit/**/*"/>
           <manifest>
               <section name="org/apache/pig/test/pigunit">
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
                   <attribute name="Implementation-Vendor" value="Apache" />
                   <attribute name="Implementation-Title" value="Pig" />
                   <attribute name="Implementation-Version" value="${version}" />
@@ -801,11 +837,17 @@
             <manifest>
                 <attribute name="Main-Class" value="org.apache.pig.Main" />
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
-                    <attribute name="Build-TimeStamp" value="${timestamp}" />
-                    <attribute name="Svn-Revision" value="${svnString}" />
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
             <fileset file="${basedir}/src/pig-default.properties" />
@@ -847,10 +889,25 @@
     <!-- ================================================================== -->
     <target name="pigperf" depends="compile-test" description="Create pigperf.jar">
         <jar jarfile="pigperf.jar">
+            <manifest>
+                <section name="org/apache/pig">
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
+                </section>
+            </manifest>
             <fileset dir="${test.build.dir}/classes">
                 <include name="org/apache/pig/test/pigmix/**"/>
                 <include name="org/apache/pig/test/utils/datagen/*"/>
-                <include name="org/apache/pig/test/udf/storefunc/*"/>
+		<!-- <include name="org/apache/pig/test/udf/storefunc/*"/>   --> 
             </fileset>
             <zipfileset src="${lib.dir}/sdsuLibJKD12.jar" />
         </jar>
@@ -982,13 +1039,28 @@
 
     <target name="pigunit-jar" depends="compile-test, ivy-test" description="create the pigunit jar file">
         <echo> *** Creating pigunit.jar ***</echo>
-        <jar destfile="${pigunit.jarfile}">
-            <fileset dir="${test.build.classes}">
-                <include name="**/org/apache/pig/pigunit/**"/>
-                <include name="**/org/apache/pig/test/Util.**"/>
-            </fileset>
-      	    <zipfileset src="${ivy.lib.dir}/commons-lang-${commons-lang.version}.jar" />
-        </jar>
+      <jar destfile="${pigunit.jarfile}">
+            <manifest>
+                <section name="org/apache/pig">
+                  <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                  <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                  <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                  <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                  <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                  <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                  <attribute name="Implementation-Vendor" value="Apache" />
+                  <attribute name="Implementation-Title" value="Pig" />
+                  <attribute name="Implementation-Version" value="${version}" />
+                  <attribute name="Build-TimeStamp" value="${timestamp}" />
+                  <attribute name="Svn-Revision" value="${svnString}" />
+                </section>
+            </manifest>
+          <fileset dir="${test.build.classes}">
+              <include name="**/org/apache/pig/pigunit/**"/>
+              <include name="**/org/apache/pig/test/Util.**"/>
+          </fileset>
+      	  <zipfileset src="${ivy.lib.dir}/commons-lang-${commons-lang.version}.jar" />
+      </jar>
     </target>
 
     <target name="test-pigunit" depends="compile-test,jar-withouthadoop, pigunit-jar" description="Run tests that test PigUnit">
@@ -1151,7 +1223,7 @@
     <!-- Make release packages                                              -->
     <!-- ================================================================== -->
     <target name="tar" depends="package" description="Source distribution">
-        <tar compression="gzip" longfile="gnu" destfile="${build.dir}/${artifact.pig.tar}">
+        <tar compression="gzip" longfile="gnu" destfile="${build.dir}/${final.name}.tar.gz">
             <tarfileset dir="${build.dir}/tar/" mode="664">
                 <exclude name="${final.name}/bin/*" />
                 <include name="${final.name}/**" />
@@ -1163,7 +1235,7 @@
     </target>
 
     <target name="tar-release" depends="package-release" description="Create release tarball">
-        <tar compression="gzip" longfile="gnu" destfile="${rpm.dist.dir}/${artifact.pig.tar}">
+        <tar compression="gzip" longfile="gnu" destfile="${rpm.dist.dir}/${final.name}.tar.gz">
             <tarfileset dir="${build.dir}/rpm" mode="664">
                 <exclude name="${final.name}/bin/*" />
                 <include name="${final.name}/**" />
@@ -1182,7 +1254,7 @@
         <mkdir dir="${package.buildroot}/SPECS" />
         <copy todir="${package.buildroot}/SOURCES">
             <fileset dir="${rpm.dist.dir}">
-                <include name="${artifact.pig.tar}" />
+                <include name="${final.name}.tar.gz" />
             </fileset>
         </copy>
         <copy todir="${package.buildroot}/SOURCES">
@@ -1227,7 +1299,7 @@
             </fileset>
         </copy>
         <!-- why are we copying -withouthadoop to -core ? PIG-2757 -->
-        <copy file="${output.jarfile.withouthadoop}" tofile="${rpm.dist.dir}/share/pig/${final.name}-core.jar" overwrite="true" />
+        <copy file="${build.dir}/${final.name}-withouthadoop.jar" tofile="${rpm.dist.dir}/share/pig/${final.name}-core.jar" overwrite="true" />
         <copy file="${src.dir}/packages/deb/pig.control/control" todir="${package.build.dir}/pig.control">
             <filterchain>
                 <replacetokens>
@@ -1342,7 +1414,7 @@
       javadoc-jar, pigunit-jar, smoketests-jar"
          description="To install pig to local filesystem's m2 cache">
          <artifact:pom file="${pig.pom}" id="pig"/>
-          <artifact:install file="${output.jarfile.core}">
+          <artifact:install file="${pig-core.jar}">
                <pom refid="pig"/>
            <attach file="${output.jarfile.sources}" classifier="sources" />
            <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
@@ -1365,56 +1437,34 @@
      <target name="signanddeploy" if="staging" depends="sign">
         <artifact:pom file="${pig.pom}" id="pig"/>
         <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
-        <artifact:deploy file="${output.jarfile.core}">
-           <remoteRepository id="apache.staging.https" url="${asfstagingrepo}"/>
-           <pom refid="pig"/>
-           <attach file="${output.jarfile.core}.asc" type="jar.asc"/>
-           <attach file="${pig.pom}.asc" type="pom.asc"/>
-           <attach file="${output.jarfile.core-h2}.asc" type="jar.asc" classifier="h2"/>
-           <attach file="${output.jarfile.core-h2}" classifier="h2" />
-           <attach file="${output.jarfile.sources}.asc" type="jar.asc" classifier="sources"/>
+        <artifact:deploy file="${pig-core.jar}">
+        <remoteRepository id="mapr-releases" url="${env.MAPR_RELEASES_REPO}"/>
+        <pom refid="pig"/>
            <attach file="${output.jarfile.sources}" classifier="sources" />
-           <attach file="${output.jarfile.javadoc}.asc" type="jar.asc"  classifier="javadoc"/>
            <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
-        </artifact:deploy>
-        <artifact:pom file="${pigunit.pom}" id="pigunit"/>
-        <artifact:deploy file="${pigunit.jarfile}">
-           <remoteRepository id="apache.staging.https" url="${asfstagingrepo}"/>
-           <pom refid="pigunit"/>
-           <attach file="${pigunit.jarfile}.asc" type="jar.asc"/>
-           <attach file="${pigunit.pom}.asc" type="pom.asc"/>
-        </artifact:deploy>
-        <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
-        <artifact:deploy file="${smoke.tests.jarfile}">
-           <remoteRepository id="apache.staging.https" url="${asfstagingrepo}"/>
-           <pom refid="pigsmoke"/>
-           <attach file="${smoke.tests.jarfile}.asc" type="jar.asc"/>
-           <attach file="${pigsmoke.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
     </target>
 
     <target name="simpledeploy" unless="staging">
       <artifact:pom file="${pig.pom}" id="pig"/>
       <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
-      <artifact:deploy file="${output.jarfile.core}">
-              <remoteRepository id="apache.snapshots.https" url="${asfsnapshotrepo}"/>
+      <artifact:deploy file="${pig-core.jar}">
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_RELEASES_REPO}"/>
               <pom refid="pig"/>
-          <attach file="${output.jarfile.core-h2}" classifier="h2" />
-          <attach file="${output.jarfile.sources}" classifier="sources" />
-          <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
+          <attach file="${pig-sources.jar}" classifier="sources" />
+      	  <attach file="${pig-javadoc.jar}" classifier="javadoc" />
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
-              <remoteRepository id="apache.snapshots.https" url="${asfsnapshotrepo}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_RELEASES_REPO}"/>
               <pom refid="pigunit"/>
       </artifact:deploy>
       <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
       <artifact:deploy file="${smoke.tests.jarfile}">
-              <remoteRepository id="apache.snapshots.https" url="${asfsnapshotrepo}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_RELEASES_REPO}"/>
               <pom refid="pigsmoke"/>
       </artifact:deploy>
    </target>
-
     <target name="sign" depends="clean-sign" if="staging">
        <input message="password:>" addproperty="gpg.passphrase">
         <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
@@ -1436,25 +1486,15 @@
            </exec>
          </sequential>
        </macrodef>
-       <sign-artifact input.file="${output.jarfile.core}"
-        output.file="${output.jarfile.core}.asc" gpg.passphrase="${gpg.passphrase}"/>
-       <sign-artifact input.file="${output.jarfile.core-h2}"
-        output.file="${output.jarfile.core-h2}.asc" gpg.passphrase="${gpg.passphrase}"/>
+       <sign-artifact input.file="${pig-core.jar}"
+        output.file="${pig-core.jar}.asc" gpg.passphrase="${gpg.passphrase}"/>
        <sign-artifact input.file="${output.jarfile.sources}"
         output.file="${output.jarfile.sources}.asc" gpg.passphrase="${gpg.passphrase}"/>
        <sign-artifact input.file="${output.jarfile.javadoc}"
-        output.file="${output.jarfile.javadoc}.asc" gpg.passphrase="${gpg.passphrase}"/>
-       <sign-artifact input.file="${pig.pom}"
-        output.file="${pig.pom}.asc" gpg.passphrase="${gpg.passphrase}"/>
-       <sign-artifact input.file="${pigunit.pom}"
-        output.file="${pigunit.pom}.asc" gpg.passphrase="${gpg.passphrase}"/>
-       <sign-artifact input.file="${pigunit.jarfile}"
-        output.file="${pigunit.jarfile}.asc" gpg.passphrase="${gpg.passphrase}"/>
-       <sign-artifact input.file="${pigsmoke.pom}"
-        output.file="${pigsmoke.pom}.asc" gpg.passphrase="${gpg.passphrase}"/>
-       <sign-artifact input.file="${smoke.tests.jarfile}"
-        output.file="${smoke.tests.jarfile}.asc" gpg.passphrase="${gpg.passphrase}"/>
-    </target>
+    	output.file="${output.jarfile.javadoc}.asc" gpg.passphrase="${gpg.passphrase}"/>
+    	<sign-artifact input.file="${pig.pom}"
+    	output.file="${pig.pom}.asc" gpg.passphrase="${gpg.passphrase}"/>
+     </target>
 
      <target name="clean-sign" description="Clean.  Delete .asc files">
        <delete>
@@ -1480,23 +1520,11 @@
     <!-- ================================================================== -->
     <!-- Perform audit activities for the release                           -->
     <!-- ================================================================== -->
-    <target name="releaseaudit" depends="ivy-releaseaudit" description="generate a release audit report">
-        <get src="${mvnrepo}/org/apache/rat/apache-rat/${apacherat.version}/apache-rat-${apacherat.version}.jar"
-             dest="${basedir}/build/apache-rat-${apacherat.version}.jar"
-             usetimestamp="true"
-             skipexisting="true"/>
-        <java jar="${basedir}/build/apache-rat-${apacherat.version}.jar"
-              fork="true"
-              output="${basedir}/build/releaseaudit_report.txt">
-            <arg value="--dir"/>
-            <arg value="${basedir}"/>
-            <arg value="-e"/>
-            <arg value=".svn"/>
-            <arg value=".git"/>
-            <arg value=".gitignore"/>
-            <arg value=".*/build/.*"/>
+    <target name="releaseaudit" depends="ivy-releaseaudit, package" description="Release Audit activities">
+	<java classname="${rat.reporting.classname}" fork="true">
+            <classpath refid="releaseaudit.classpath"/>
+            <arg value="${build.dir}/tar/${final.name}"/>
         </java>
-        <echo message="releaseaudit report generated at ${basedir}/build/releaseaudit_report.txt"/>
     </target>
 
     <!--target name="checkstyle" depends="checkstyle.check, set-checkstyle-classpath" if="checkstyle.home"  -->
@@ -1785,10 +1813,10 @@
          <fail>
              <condition >
                  <not>
-                     <available file="${output.jarfile.withdependencies}" />
+                     <available file="${pig.jar}" />
                  </not>
              </condition>
-                 Not found: ${output.jarfile.withdependencies}
+                 Not found: ${pig.jar}
                  Please run the target "jar" in the main build file
          </fail>
      </target>
@@ -1817,7 +1845,7 @@
      </target>
 
      <target name="copy-jar-to-maven" depends="ready-to-publish">
-        <copy file="${output.jarfile.core}" tofile="${build.ivy.maven.jar}"/>
+        <copy file="${pig-core.jar}" tofile="${build.ivy.maven.jar}"/>
         <checksum file="${build.ivy.maven.jar}" algorithm="md5"/>
      </target>
 
@@ -1840,7 +1868,49 @@
      <target name="piggybank" depends="jar">
          <ant antfile="contrib/piggybank/java/build.xml" inheritAll="false"/> 
      </target>
+                  <target name="mapr-version">
+                    <echo file="${build.dir}/mapr-version.sh">
+#!/bin/bash
+build_user=`whoami`
+build_date=`date`
+build_cwd=`pwd`
+build_hostname=`hostname`
 
-     <import file="./build-site.xml" optional="true"/>
+if git status &gt; /dev/null 2&gt;&amp;1 ; then
+  scm=git
+  build_revision=`git log -1 --pretty=format:&quot;%H&quot;`
+  build_url=`git config --get remote.origin.url`
+elif hg st &gt; /dev/null 2&gt;&amp;1 ; then
+  scm=hg
+  build_revision=`hg ident -n | sed 's/[^0-9]//g'`
+  build_url=`hg paths | grep 'default' | sed 's/.*default[^=]*=\s*//g'`
+elif svn info &gt; /dev/null 2&gt;&amp;1 ; then
+  scm=svn
+  build_revision=`svn info | sed -n -e 's/Last Changed Rev: \(.*\)/\1/p'`
+  build_url=`svn info | sed -n -e 's/URL: \(.*\)/\1/p'`
+else
+  scm=file
+  build_revision=&quot;Unknown&quot;
+fi
 
+if [ &quot;${build_url}&quot; = &quot;&quot; ] ; then 
+  build_url=&quot;${scm}://${build_hostname}${build_cwd}&quot;
+fi
+
+build_uname=`uname -a`
+#MapR Version Info
+cat &gt;mapr-build.properties &lt;&lt;EOF
+mapr.buildurl=$build_url
+mapr.builddate=$build_date
+mapr.builduser=$build_user
+mapr.builduname=$build_uname
+mapr.buildhost=$build_hostname
+mapr.buildversion=$build_revision
+EOF
+                    </echo>
+                    <exec executable="sh" failonerror="true">
+                      <arg line="${build.dir}/mapr-version.sh"/>
+                    </exec>
+
+                  </target>
 </project>
