@@ -85,7 +85,7 @@ fi
 
 echo "Mappers = $mappers"
 
-mainclass=org.apache.pig.test.utils.datagen.DataGenerator 
+mainclass=org.apache.pig.test.pigmix.datagen.DataGenerator 
 
 if [ -z "$rows" ]
 then
