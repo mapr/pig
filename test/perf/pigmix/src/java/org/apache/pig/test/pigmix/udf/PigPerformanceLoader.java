@@ -174,7 +174,7 @@ public class PigPerformanceLoader extends PigStorage {
                 ResourceFieldSchema fs) throws IOException {
             return helper.bytesToMap(arg0, fs);
         }
-
+/*
         @Override
         public BigInteger bytesToBigInteger(byte[] arg0) throws IOException {
             return helper.bytesToBigInteger(arg0);
@@ -184,5 +184,7 @@ public class PigPerformanceLoader extends PigStorage {
         public BigDecimal bytesToBigDecimal(byte[] arg0) throws IOException {
             return helper.bytesToBigDecimal(arg0);
         }
+*/
+
     }
 }
