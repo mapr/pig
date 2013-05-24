@@ -67,13 +67,23 @@ for f in "$@"; do
      fi
 done
 
+#echo "DEBUG: \$0 is $0"
 # resolve links - $0 may be a softlink
 this="${BASH_SOURCE-$0}"
+#echo "DEBUG: \$this is $this"
+
+if [ -L $0 ]; then
+this=`readlink $0`
+fi
+#echo "DEBUG: new \$this is $this"
 
 # convert relative path to absolute path
 bin=$(cd -P -- "$(dirname -- "$this")">/dev/null && pwd -P)
+#echo "DEBUG: \$bin is $bin"
 script="$(basename -- "$this")"
+#echo "DEBUG: \$script is $script"
 this="$bin/$script"
+#echo "DEBUG: \$this is $this"
 
 # the root of the Pig installation
 export PIG_HOME=`dirname "$this"`/..
