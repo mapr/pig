@@ -27,11 +27,11 @@ then
 fi
 if [ -z $PIG_HOME ]
 then
-  PIG_HOME="/opt/mapr/pig/pig-0.10"
+  PIG_HOME="/opt/mapr/pig/pig-0.11.2"
 fi
 if [ -z $PIG_VERSION ]
 then
-  PIG_VERSION="0.10"
+  PIG_VERSION="0.11.2"
 fi
 if [ -z "$pigjar" ]
 then
