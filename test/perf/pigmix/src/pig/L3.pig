@@ -2,11 +2,11 @@
 --contains a join followed by a group by on the same key, something that we
 --could potentially optimize by not regrouping.
 register $PIGMIX_JAR
-A = load '$HDFS_ROOT/page_views' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
+A = load '/pigmix/page_views' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
     as (user, action, timespent, query_term, ip_addr, timestamp,
         estimated_revenue, page_info, page_links);
 B = foreach A generate user, (double)estimated_revenue;
-alpha = load '$HDFS_ROOT/users' using PigStorage('\u0001') as (name, phone, address,
+alpha = load '/pigmix/users' using PigStorage('\u0001') as (name, phone, address,
         city, state, zip);
 beta = foreach alpha generate name;
 C = join beta by name, B by user parallel $PARALLEL;
