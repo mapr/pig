@@ -577,7 +577,7 @@
             <link href="${javadoc.link.java}" />
             <classpath>
                 <path refid="javadoc-classpath" />
-            	<pathelement path="${output.jarfile.withdependencies}" />
+            	<pathelement path="${pig.jar}" />
                 <fileset dir="build">
                     <include name="**/zebra-*-dev.jar"/>
                 </fileset>
@@ -656,9 +656,9 @@
         <copy todir="${build.classes}/META-INF">
             <fileset dir="${src.dir}/META-INF" includes="**"/>  
         </copy>
-        <move file="${output.jarfile.withdependencies}" tofile="${output.stage.jarfile.withdependencies}"/>
+        <move file="${pig.jar}" tofile="${output.stage.jarfile.withdependencies}"/>
         <sleep seconds="1"/>
-        <jar jarfile="${output.jarfile.withdependencies}">
+        <jar jarfile="${pig.jar}">
             <manifest>
                 <attribute name="Main-Class" value="org.apache.pig.Main" />
                 <section name="org/apache/pig">
@@ -750,7 +750,7 @@
             <exclude name="hadoop-site.xml" />
         </jar>
         <!-- @deprecated -->
-        <jar jarfile="${output.jarfile.withdependencies}" basedir="${build.classes}">
+        <jar jarfile="${pig.jar}" basedir="${build.classes}">
             <manifest>
                 <attribute name="Main-Class" value="org.apache.pig.Main" />
                 <section name="org/apache/pig">
@@ -794,7 +794,7 @@
             <exclude name="hadoop-site.xml" />
         </jar>
         <antcall target="include-meta" inheritRefs="true" inheritall="true"/>
-        <copy file="${output.jarfile.withdependencies}" tofile="${output.jarfile.backcompat}"/>
+        <copy file="${pig.jar}" tofile="${output.jarfile.backcompat}"/>
     </target>
 
     <target name="smoketests-jar" depends="pigunit-jar"
@@ -1694,7 +1694,7 @@
                 <packageset dir="${src.dir}"/>
                 <classpath>
                         <path refid="javadoc-classpath" />
-                        <pathelement path="${output.jarfile.withdependencies}" />
+                        <pathelement path="${pig.jar}" />
                 </classpath>
         </javadoc>
       </target>
@@ -1720,7 +1720,7 @@
  		</doclet>
  		<classpath>
  	        	<path refid="javadoc-classpath" />
- 			<pathelement path="${output.jarfile.withdependencies}" />	
+ 			<pathelement path="${pig.jar}" />	
   	        </classpath>
  	</javadoc>				
      </target>
