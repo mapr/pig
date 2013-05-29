@@ -17,4 +17,9 @@ $PIG_HOME/bin/pig -p PIGMIX_JAR=$PIG_HOME/pigperf.jar  -p PARALLEL=10 -p PIGMIX_
 
 L2.pig- feature tested: REPLICATED_JOIN. parameters:
 pig -p PIGMIX_JAR=$PIG_HOME/pigperf.jar  -p PARALLEL=7 -p PIGMIX_OUTPUT=/pigmixresults  $PIG_HOME/test/perf/pigmix/src/pig/L2.pig
+--------------------------------------------------------------------------------------
+
+Script to runpigmix - 
+./runpigmix.pl /home/ssatish/git_repos/pig-0.11-mapr /home/ssatish/git_repos/pig-0.11-mapr/bin/pig  /home/ssatish/git_repos/pig-0.11-mapr/pigperf.jar /opt/mapr/hadoop/hadoop-0.20.2 /opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmixresults
+
 
