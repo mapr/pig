@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 if(scalar(@ARGV) < 6 )
 {
@@ -11,7 +11,6 @@ my $pigmixjar = shift;
 my $hadoophome = shift;
 my $hadoopbin = shift;
 my $scriptdir = shift;
-my $hdfsroot = shift;
 my $pigmixoutput = shift;
 my $parallel = shift;
 my $runs = shift;
@@ -46,7 +45,7 @@ for(my $i = 1; $i <= 17; $i++) {
         print STDERR "L".$i.":";
         print STDERR "Going to run $pigbin $scriptdir/L".$i.".pig\n";
         my $s = time();
-        $cmd = "$pigbin -param PIGMIX_JAR=$pigmixjar -param HDFS_ROOT=$hdfsroot -param PIGMIX_OUTPUT=$pigmixoutput/pig -param PARALLEL=$parallel $scriptdir/L". $i.".pig" ;
+        $cmd = "$pigbin -param PIGMIX_JAR=$pigmixjar  -param PIGMIX_OUTPUT=$pigmixoutput/pig -param PARALLEL=$parallel $scriptdir/L". $i.".pig" ;
         print STDERR `$cmd 2>&1`;
         my $e = time();
         $pig_times += $e - $s;
@@ -66,9 +65,9 @@ for(my $i = 1; $i <= 17; $i++) {
         for(my $j = 0; $j < $runs; $j++) {
             print STDERR "Running Map-Reduce Query L".$i."\n";
             print STDERR "L".$i.":";
-            print STDERR "Going to run $hadoopbin jar $pigmixjar org.apache.pig.test.pigmix.mapreduce.L"."$i $hdfsroot $pigmixoutput/mapreduce $parallel\n";
+            print STDERR "Going to run $hadoopbin jar $pigmixjar org.apache.pig.test.pigmix.mapreduce.L"."$i $pigmixoutput/mapreduce $parallel\n";
             my $s = time();
-            $cmd = "$hadoopbin jar $pigmixjar org.apache.pig.test.pigmix.mapreduce.L$i $hdfsroot $pigmixoutput/mapreduce $parallel";
+            $cmd = "$hadoopbin jar $pigmixjar org.apache.pig.test.pigmix.mapreduce.L$i $pigmixoutput/mapreduce $parallel";
             print STDERR `$cmd 2>&1`;
             my $e = time();
             $mr_times += $e - $s;
