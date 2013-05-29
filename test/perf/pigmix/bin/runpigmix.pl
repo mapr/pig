@@ -2,7 +2,7 @@
 
 if(scalar(@ARGV) < 6 )
 {
-    print STDERR "Usage: $0 <pig_home> <pig_bin> <pigmix_jar> <hadoop_home> <hadoop_bin> <pig mix scripts dir> <hdfs_root> <pigmix_output> [parallel] [numruns] [runmapreduce] \n";
+    print STDERR "Usage: $0 <pig_home> <pig_bin> <pigmix_jar> <hadoop_home> <hadoop_bin> <pig mix scripts dir>  <pigmix_output> [parallel] [numruns] [runmapreduce] \n";
     exit(-1);
 }
 my $pighome = shift;
