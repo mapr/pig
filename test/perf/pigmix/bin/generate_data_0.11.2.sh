@@ -39,7 +39,6 @@ then
 fi
 
 HADOOP_HOME="/opt/mapr/hadoop/hadoop-0.20.2"
-#pigjar=$PIG_HOME/pig-0.8.0-SNAPSHOT-core.jar
 testjar=$PIG_HOME/pigperf.jar
 PIG_DATA="/pigmix"
 PIG_RESULTS="/pigmixresults"
@@ -55,10 +54,6 @@ maprcli volume create -name pigmix -path $PIG_DATA -replication 3
 maprcli volume create -name pigmixresults -path $PIG_RESULTS -replication 3
 maprcli volume create -name mapredpigmixresults -path $MAPRED_PIG_RESULTS -replication 3
 
-#zipfjar=$PIG_HOME/lib/sdsuLibJKD12.jar
-
-#maprfsjar=$HADOOP_HOME/lib/maprfs-0.1.jar
-#maprfsjar=$HADOOP_HOME/lib/maprfs-0.20.2-2.1.2.jar
 maprfsjar=$HADOOP_HOME/lib/maprfs-1.0.3-mapr-3.0.0.jar
 
 hadoopjar=$HADOOP_HOME/lib/hadoop-0.20.2-dev-core.jar
@@ -70,7 +65,6 @@ conf_dir=$HADOOP_HOME/conf
 
 pig_conf=$PIG_HOME/conf/pig.properties
 
-#classpath=$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:lib/*
 classpath=$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*
 
 export HADOOP_CLASSPATH=$classpath
@@ -91,8 +85,6 @@ if [ -z "$rows" ]
 then
   rows=625000000
 fi
-
-
 
 user_field=s:20:1600000:z:7
 action_field=i:1:2:u:0
@@ -125,7 +117,7 @@ echo "Skimming users"
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
 register $PIG_HOME/pigperf.jar;
 fs -rmr '$protousers';
-A = load '$pages' using org.apache.pig.test.udf.storefunc.PigPerformanceLoader()
+A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
     as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
 B = foreach A generate user;
 C = distinct B parallel $mappers;
@@ -164,7 +156,7 @@ echo "Skimming power users"
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
 register $PIG_HOME/pigperf.jar;
 fs -rmr $protopowerusers;
-A = load '$pages' using org.apache.pig.test.udf.storefunc.PigPerformanceLoader()
+A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
     as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
 B = foreach A generate user;
 C = distinct B parallel $mappers;
@@ -252,7 +244,7 @@ fs -rmr ${pages}_sorted;
 fs -rmr ${users}_sorted;
 fs -rmr ${powerusers}_samples;
 fs -rmr ${protopowerusers};
-A = load '$pages' using org.apache.pig.test.udf.storefunc.PigPerformanceLoader()
+A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
     as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
 B = order A by user parallel $mappers;
 store B into '${pages}_sorted' using PigStorage('\u0001');

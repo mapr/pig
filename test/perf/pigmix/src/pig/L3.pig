@@ -2,7 +2,7 @@
 --contains a join followed by a group by on the same key, something that we
 --could potentially optimize by not regrouping.
 register $PIGMIX_JAR
-A = load '/pigmix/page_views' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
+A = load '/pigmix/pages625m' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
     as (user, action, timespent, query_term, ip_addr, timestamp,
         estimated_revenue, page_info, page_links);
 B = foreach A generate user, (double)estimated_revenue;
