@@ -35,7 +35,7 @@ then
 fi
 if [ -z "$pigjar" ]
 then
-  pigjar=$PIG_HOME/pig-${PIG_VERSION}-withouthadoop.jar
+  pigjar=$PIG_HOME/pig-${PIG_VERSION}-mapr-SNAPSHOT-withouthadoop.jar
 fi
 
 HADOOP_HOME="/opt/mapr/hadoop/hadoop-0.20.2"
@@ -54,7 +54,7 @@ maprcli volume create -name pigmix -path $PIG_DATA -replication 3
 maprcli volume create -name pigmixresults -path $PIG_RESULTS -replication 3
 maprcli volume create -name mapredpigmixresults -path $MAPRED_PIG_RESULTS -replication 3
 
-maprfsjar=$HADOOP_HOME/lib/maprfs-1.0.3-mapr-3.0.0.jar
+maprfsjar=$HADOOP_HOME/lib/maprfs-1.0.3-mapr-3.0.0-SNAPSHOT.jar
 
 hadoopjar=$HADOOP_HOME/lib/hadoop-0.20.2-dev-core.jar
 
@@ -64,8 +64,9 @@ zookeeperjar="/opt/mapr/zookeeper/zookeeper-3.3.6/zookeeper-3.3.6.jar"
 conf_dir=$HADOOP_HOME/conf
 
 pig_conf=$PIG_HOME/conf/pig.properties
+jsonjar=/opt/mapr/lib/json*.jar 
 
-classpath=$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*
+classpath=$jsonjar:$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*
 
 export HADOOP_CLASSPATH=$classpath
 
