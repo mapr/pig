@@ -22,6 +22,7 @@
     <!-- to contribute (without having to type -D or edit this file -->
     <property file="${user.home}/build.properties" />
     <property file="${basedir}/build.properties" />
+    <property environment="env"/>
 
     <!-- name and version properties -->
     <property name="name" value="pig" />
@@ -1451,7 +1452,7 @@
          </artifact:install>
     </target>
 
-    <target name="mvn-deploy" depends="mvn-taskdef, mvn-jar, source-jar, javadoc-jar,
+    <target name="mvn-deploy" depends="mvn-taskdef, jar, source-jar, javadoc-jar,
          smoketests-jar, pigunit-jar, set-version, signanddeploy, simpledeploy"
          description="To deploy pig jar to apache snapshot's repository">
     </target>
