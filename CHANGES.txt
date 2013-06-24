@@ -24,6 +24,8 @@ INCOMPATIBLE CHANGES
 
 IMPROVEMENTS
 
+PIG-2786: enhance Pig launcher script wrt. HBase/HCat integration (ndimiduk via daijy)
+
 PIG-200: Pig Performance Benchmarks (daijy)
 
 OPTIMIZATIONS
