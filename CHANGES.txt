@@ -32,6 +32,8 @@ PIG-2769: a simple logic causes very long compiling time on pig 0.10.0 (njw45 vi
 
 BUG FIXES
 
+PIG-3135: HExecutionEngine should look for resources in user passed Properties (prkommireddi via cheolsoo)
+
 PIG-2508: PIG can unpredictably ignore deprecated Hadoop config options (thw via dvryaboy)
 
 PIG-3223: AvroStorage does not handle comma separated input paths (dreambird via rohini)
