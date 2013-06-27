@@ -145,6 +145,36 @@ public class POLoad extends PhysicalOperator {
         return res;
     }
 
+    public Result getNextTuple() throws ExecException {
+        if(!setUpDone && lFile!=null){
+            try {
+                setUp();
+            } catch (IOException ioe) {
+                int errCode = 2081;
+                String msg = "Unable to setup the load function.";
+                throw new ExecException(msg, errCode, PigException.BUG, ioe);
+            }
+            setUpDone = true;
+        }
+        Result res = new Result();
+        try {
+            res.result = loader.getNext();
+            if(res.result==null){
+                res.returnStatus = POStatus.STATUS_EOP;
+                tearDown();
+            }
+            else
+                res.returnStatus = POStatus.STATUS_OK;
+
+            if (res.returnStatus == POStatus.STATUS_OK)
+                res.result = illustratorMarkup(res, res.result, 0);
+        } catch (IOException e) {
+            log.error("Received error from loader function: " + e);
+            return res;
+        }
+        return res;
+    }
+
     @Override
     public String name() {
         return (lFile != null) ? getAliasString() + "Load" + "(" + lFile.toString()

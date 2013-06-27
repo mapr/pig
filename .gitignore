@@ -20,3 +20,4 @@ mapr-build.properties
 *.class
 *.classpath
 *.project
+*.swp
