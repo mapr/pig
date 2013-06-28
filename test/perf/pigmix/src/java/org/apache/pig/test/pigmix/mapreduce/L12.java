@@ -158,7 +158,7 @@ public class L12 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(lp, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/highest_value_page_per_user"));
         lp.setNumReduceTasks(Integer.parseInt(parallel));
         Job loadPages = new Job(lp);
@@ -175,7 +175,7 @@ public class L12 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lu.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(lu, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(lu, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(lu, new Path(outputDir + "/total_timespent_per_term"));
         lu.setNumReduceTasks(Integer.parseInt(parallel));
         Job loadUsers = new Job(lu);
@@ -192,7 +192,7 @@ public class L12 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             join.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(join, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(join, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(join, new Path(outputDir + "/queries_per_action"));
         join.setNumReduceTasks(Integer.parseInt(parallel));
         Job joinJob = new Job(join);

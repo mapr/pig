@@ -119,7 +119,7 @@ public class L14 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views_sorted"));
+        FileInputFormat.addInputPath(lp, new Path(inputDir + "/pages625m_sorted"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/indexed_pages_14"));
         lp.setNumReduceTasks(0);
         Job loadPages = new Job(lp);

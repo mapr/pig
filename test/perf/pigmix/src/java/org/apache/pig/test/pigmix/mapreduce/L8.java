@@ -129,7 +129,7 @@ public class L8 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(lp, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/L8out"));
         lp.setNumReduceTasks(1);
         Job group = new Job(lp);

@@ -110,7 +110,7 @@ public class L11 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(lp, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/p"));
         lp.setNumReduceTasks(Integer.parseInt(parallel));
         Job loadPages = new Job(lp);

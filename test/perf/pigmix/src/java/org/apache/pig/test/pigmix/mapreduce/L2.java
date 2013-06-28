@@ -108,7 +108,7 @@ public class L2 {
         }
         DistributedCache.addCacheFile(
             new URI(inputDir + "/power_users"), lp);
-        FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(lp, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/L2out"));
         lp.setNumReduceTasks(0);
         Job loadPages = new Job(lp);

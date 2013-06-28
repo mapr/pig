@@ -78,9 +78,9 @@ for(my $i = 1; $i <= 17; $i++) {
         # round to next second
         $mr_times = int($mr_times + 0.5);
         $total_mr_times = $total_mr_times + $mr_times;
-
-	#my $multiplier = $pig_times/$mr_times;
-        print "PigMix_$i pig run time: $pig_times, java run time: $mr_times\n";
+         
+	my $multiplier = $pig_times/$mr_times;
+        print "PigMix_$i pig run time: $pig_times, java run time: $mr_times, multiplier: $multiplier\n";
     }
 }
 

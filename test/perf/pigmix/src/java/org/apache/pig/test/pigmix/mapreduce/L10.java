@@ -217,7 +217,7 @@ public class L10 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
-        FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
+        FileInputFormat.addInputPath(lp, new Path(inputDir + "/pages625m"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/L10out"));
         // Hardcode the parallel to 40 since MyPartitioner assumes it
         lp.setNumReduceTasks(40);
