@@ -429,7 +429,7 @@
     <!-- ================================================================== -->
     <!-- Clean.  Delete the build files, and their directories              -->
     <!-- ================================================================== -->
-    <target name="clean" description="Cleanup build artifacts">
+    <target name="clean"  depends="clean-piggybank" description="Cleanup build artifacts">
         <delete dir="${src.gen.dir}" />
         <delete dir="${docs.dir}/build" />
         <delete file="${jdiff.xml.dir}\${name}_${version}.xml" />
@@ -698,7 +698,7 @@
     <!-- ================================================================== -->
     <!-- Facede to build pig.jar and pig-withouthadoop.jar                  -->
     <!-- ================================================================== -->
-    <target name="jar-all" depends="jar,jar-withouthadoop,pigperf" description="Create pig-all.jar and pig-withouthadoop.jar"/>
+    <target name="jar-all" depends="jar,jar-withouthadoop,pigperf,piggybank" description="Create pig-all.jar and pig-withouthadoop.jar"/>
 
     <!-- ================================================================== -->
     <!-- Make pig.jar                                                       -->
