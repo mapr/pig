@@ -244,6 +244,8 @@
       conf="test->default" />
     <dependency org="org.apache.hive" name="hive-exec" rev="${hive.version}"
       conf="test->master" />
+    <dependency org="org.mortbay.jetty" name="jsp-2.1" rev="${jsp.version}"
+      conf="test->default" />
 
     <dependency org="org.vafer" name="jdeb" rev="${jdeb.version}"
       conf="compile->master">
