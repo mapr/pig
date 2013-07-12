@@ -38,7 +38,7 @@ $cmd = "$hadoopbin fs -rmr $pigmixoutput";
 print STDERR "Going to run $cmd\n";
 print STDERR `$cmd 2>&1`;
 
-for(my $i = 1; $i <= 17; $i++) {
+for(my $i = 1; $i < 17; $i++) {
     my $pig_times = 0;
     for(my $j = 0; $j < $runs; $j++) {
         print STDERR "Running Pig Query L".$i."\n";

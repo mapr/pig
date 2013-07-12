@@ -42,7 +42,7 @@ my $zkjar="/opt/mapr/zookeeper/zookeeper-3.3.6/zookeeper-3.3.6.jar";
 my $lib="$pighome/lib";
 my $pigprops="$pighome/conf/pig.properties";
 my $classpath="$pigperfjar:$pigprops:$hadoopjar:$pigjar:$confdir:$marfsjar:$zkjar:$lib/*:$HADOOP_LIB/*";
-for(my $i = 1; $i <= 17; $i++) {
+for(my $i = 1; $i < 17; $i++) {
     my $pig_times = 0;
     for(my $j = 0; $j < $runs; $j++) {
         print STDERR "Running Pig Query L".$i."\n";
