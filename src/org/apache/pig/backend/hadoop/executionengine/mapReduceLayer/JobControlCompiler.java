@@ -478,6 +478,11 @@ public class JobControlCompiler{
                     inp.add(ld.getLFile());
                 }
             }
+            
+            if(!mro.reducePlan.isEmpty()){
+                log.info("Reduce phase detected, estimating # of required reducers.");
+                adjustNumReducers(plan, mro, nwJob);
+            }
 
             if(lds!=null && lds.size()>0){
               for (POLoad ld : lds) {
@@ -664,7 +669,6 @@ public class JobControlCompiler{
             POPackage pack = null;
             if(mro.reducePlan.isEmpty()){
                 //MapOnly Job
-                log.info("Map only job, skipping reducer estimation");
                 nwJob.setMapperClass(PigMapOnly.Map.class);
                 nwJob.setNumReduceTasks(0);
                 if(!pigContext.inIllustrator)
@@ -678,11 +682,6 @@ public class JobControlCompiler{
             }
             else{
                 //Map Reduce Job
-
-                // Estimate the number of reducers
-                log.info("Reduce phase detected, estimating # of required reducers.");
-                adjustNumReducers(plan, mro, nwJob);
-
                 //Process the POPackage operator and remove it from the reduce plan
                 if(!mro.combinePlan.isEmpty()){
                     POPackage combPack = (POPackage)mro.combinePlan.getRoots().get(0);
