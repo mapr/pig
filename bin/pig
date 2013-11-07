@@ -42,6 +42,11 @@
 #     HBASE_CONF_DIR - Optionally, the HBase configuration to run against
 #                      when using HBaseStorage. Defaults to ${HBASE_HOME}/conf
 
+BASEMAPR=${MAPR_HOME:-/opt/mapr}
+export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
+
+env=$BASEMAPR/conf/env.sh
+[ -f $env ] && . $env
 cygwin=false
 case "`uname`" in
 CYGWIN*) cygwin=true;;
