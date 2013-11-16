@@ -356,6 +356,8 @@ if [ "$includeHCatalog" == "true" ]; then
   PIG_OPTS="$PIG_OPTS -Dpig.additional.jars=$ADDITIONAL_CLASSPATHS"
 fi
 
+export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_AUTH_CLIENT_OPTS}"
+
 # run it
 if [ -n "$HADOOP_BIN" ]; then
     if [ "$debug" == "true" ]; then
