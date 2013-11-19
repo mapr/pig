@@ -30,6 +30,7 @@
     <property name="Name" value="Pig" />
     <property name="ant-task.version" value="2.0.10" />
     <property name="pig.pom" value="${basedir}/ivy/pig.pom" />
+    <property name="pig-withouthadoop.pom" value="${basedir}/ivy/pig-withouthadoop.pom" />
     <property name="pigsmoke.pom" value="${basedir}/ivy/pigsmoke.pom" />
     <property name="pigunit.pom" value="${basedir}/ivy/pigunit.pom" />
     <property name="piggybank.pom" value="${basedir}/ivy/piggybank.pom" />
@@ -229,6 +230,7 @@
     <property name="ivy.publish.pattern" value="[artifact]-[revision].[ext]"/>
     <property name="pig.jar" value="${output.jarfile}"/>
     <property name="pig-core.jar" value="${output.jarfile.core}"/>  
+    <property name="pig-withouthadoop.jar" value="${output.jarfile.withouthadoop}"/>  
     <property name="pig-sources.jar" location="${build.dir}/${final.name}-sources.jar" />
     <property name="pig-javadoc.jar" location="${build.dir}/${final.name}-javadoc.jar" />
     <!-- jdiff properties -->
@@ -1197,6 +1199,11 @@
                <pom refid="pig"/>
            <attach file="${output.jarfile.sources}" classifier="sources" />
            <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
+   </artifact:install>
+   
+         <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
+          <artifact:install file="${pig-withouthadoop.jar}">
+               <pom refid="pig-withouthadoop"/>
           </artifact:install>
          <artifact:pom file="${pigunit.pom}" id="pigunit"/>
           <artifact:install file="${pigunit.jarfile}">
@@ -1246,6 +1253,12 @@
               <pom refid="pig"/>
           <attach file="${pig-sources.jar}" classifier="sources" />
            <attach file="${pig-javadoc.jar}" classifier="javadoc" />
+   </artifact:deploy>
+   
+     <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
+      <artifact:deploy file="${pig-withouthadoop.jar}">
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_RELEASES_REPO}"/>
+              <pom refid="pig-withouthadoop"/>
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
@@ -1306,6 +1319,7 @@
        <delete file="${pigsmoke.pom}"/>
        <delete file="${piggybank.pom}"/>
        <copy file="${basedir}/ivy/pig-template.xml" tofile="${pig.pom}"/>
+       <copy file="${basedir}/ivy/pig-withouthadoop-template.xml" tofile="${basedir}/ivy/pig-withouthadoop.pom"/>
        <copy file="${basedir}/ivy/pigunit-template.xml" tofile="${pigunit.pom}"/>
        <copy file="${basedir}/ivy/pigsmoke-template.xml" tofile="${pigsmoke.pom}"/>
        <copy file="${basedir}/ivy/piggybank-template.xml" tofile="${piggybank.pom}"/>
