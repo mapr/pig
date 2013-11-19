@@ -29,6 +29,7 @@
     <property name="Name" value="Pig" />
     <property name="ant-task.version" value="2.0.10" />
     <property name="pig.pom" value="${basedir}/ivy/pig.pom" />
+    <property name="pig-withouthadoop.pom" value="${basedir}/ivy/pig-withouthadoop.pom" />
     <property name="pigsmoke.pom" value="${basedir}/ivy/pigsmoke.pom" />
     <property name="pigunit.pom" value="${basedir}/ivy/pigunit.pom" />
     <property name="pig.version" value="0.11.2-mapr" />
@@ -216,6 +217,7 @@
         <property name="ivy.publish.pattern" value="[artifact]-[revision].[ext]"/>
 	<property name="pig.jar" value="${output.jarfile}"/>
 	<property name="pig-core.jar" value="${output.jarfile.core}"/>	
+	<property name="pig-withouthadoop.jar" value="${output.jarfile.withouthadoop}"/>	
 	<property name="pig-sources.jar" location="${build.dir}/${final.name}-sources.jar" />
 	<property name="pig-javadoc.jar" location="${build.dir}/${final.name}-javadoc.jar" />
 
@@ -1442,6 +1444,12 @@
            <attach file="${output.jarfile.sources}" classifier="sources" />
            <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
           </artifact:install>
+
+         <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
+          <artifact:install file="${pig-withouthadoop.jar}">
+               <pom refid="pig-withouthadoop"/>
+          </artifact:install>
+
          <artifact:pom file="${pigunit.pom}" id="pigunit"/>
           <artifact:install file="${pigunit.jarfile}">
                <pom refid="pigunit"/>
@@ -1452,7 +1460,7 @@
          </artifact:install>
     </target>
 
-    <target name="mvn-deploy" depends="mvn-taskdef, jar, source-jar, javadoc-jar,
+    <target name="mvn-deploy" depends="mvn-taskdef, jar, jar-withouthadoop, source-jar, javadoc-jar,
          smoketests-jar, pigunit-jar, set-version, signanddeploy, simpledeploy"
          description="To deploy pig jar to apache snapshot's repository">
     </target>
@@ -1476,6 +1484,11 @@
               <pom refid="pig"/>
           <attach file="${pig-sources.jar}" classifier="sources" />
       	  <attach file="${pig-javadoc.jar}" classifier="javadoc" />
+      </artifact:deploy>
+      <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
+      <artifact:deploy file="${pig-withouthadoop.jar}">
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_RELEASES_REPO}"/>
+              <pom refid="pig-withouthadoop"/>
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
@@ -1527,6 +1540,7 @@
 	  <target name="set-version">
 	    <delete file="${basedir}/ivy/pig.pom"/>
 	    <copy file="${basedir}/ivy/pig-template.xml" tofile="${basedir}/ivy/pig.pom"/>
+	    <copy file="${basedir}/ivy/pig-withouthadoop-template.xml" tofile="${basedir}/ivy/pig-withouthadoop.pom"/>
 	    <copy file="${basedir}/ivy/pigunit-template.xml" tofile="${basedir}/ivy/pigunit.pom"/>
 	    <copy file="${basedir}/ivy/pigsmoke-template.xml" tofile="${basedir}/ivy/pigsmoke.pom"/>
 	    <replaceregexp byline="true">
@@ -1534,6 +1548,7 @@
 	      <substitution expression="${version}"/>
 	      <fileset dir="${basedir}/ivy">
 	        <include name="pig.pom"/>
+	        <include name="pig-withouthadoop.pom"/>
 	        <include name="pigunit.pom"/>
 	        <include name="pigsmoke.pom"/>
 	      </fileset>
