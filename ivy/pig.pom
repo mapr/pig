@@ -21,7 +21,7 @@
   <groupId>org.apache.pig</groupId>
   <artifactId>pig</artifactId>
   <packaging>jar</packaging>
-  <version>0.11.2-SNAPSHOT</version>
+  <version>0.11.2-mapr-1311</version>
   <dependencies>
    <dependency>
       <groupId>commons-cli</groupId>
