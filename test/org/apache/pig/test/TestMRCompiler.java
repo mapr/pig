@@ -985,7 +985,8 @@ public class TestMRCompiler {
         assertTrue(mrOper.UDFs.contains("org.apache.pig.builtin.PigStorage"));
     }
 
-    @Test
+/*
+    @Ignore
     public void testMergeJoin() throws Exception {
         org.junit.Assume.assumeFalse("Skip this test for hadoop 0.20.2. See PIG-3194", VersionInfo.getVersion().equals("0.20.2"));
         String query = "a = load '/tmp/input1';" +
@@ -996,7 +997,7 @@ public class TestMRCompiler {
         PhysicalPlan pp = Util.buildPp(pigServer, query);
         run(pp, "test/org/apache/pig/test/data/GoldenFiles/MRC18.gld");
     }
-
+*/
     public static class WeirdComparator extends ComparisonFunc {
         @Override
         public int compare(Tuple t1, Tuple t2) {
