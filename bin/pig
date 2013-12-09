@@ -47,6 +47,12 @@
 #     HBASE_CONF_DIR - Optionally, the HBase configuration to run against
 #                      when using HBaseStorage. Defaults to ${HBASE_HOME}/conf
 
+BASEMAPR=${MAPR_HOME:-/opt/mapr}
+export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
+
+env=$BASEMAPR/conf/env.sh
+[ -f $env ] && . $env
+
 cygwin=false
 case "`uname`" in
 CYGWIN*) cygwin=true;;
@@ -74,6 +80,21 @@ for f in "$@"; do
         remaining[${#remaining[@]}]="$f"
      fi
 done
+
+function find_home() {
+target="$1"
+
+# file exists and is a symbolic link
+while [ -h "$target" ]; do
+target=`readlink "$target"`
+done
+
+# find home
+home_dir=`dirname "$target"`  # points to bin dir
+home_dir="$home_dir/../"
+echo "$home_dir"
+}
+
 
 # resolve links - $0 may be a softlink
 this="${BASH_SOURCE-$0}"
@@ -142,8 +163,8 @@ if [ "$includeHCatalog" == "true" ]; then
   slfJar=slf4j-api-*.jar
   hbaseHiveJar=hive-hbase-handler-*.jar
   if [ "$HIVE_HOME" == "" ]; then
-    if [ -d "/usr/lib/hive" ]; then
-      HIVE_HOME=/usr/lib/hive
+    if [ -f "/usr/bin/hive" ]; then
+      HIVE_HOME=`find_home "/usr/bin/hive"` 
     else
       echo "Please initialize HIVE_HOME"
       exit -1
@@ -165,8 +186,8 @@ if [ "$includeHCatalog" == "true" ]; then
   hbaseHCatJar=hbase-storage-handler-*.jar
   pigHCatJar=hcatalog-pig-adapter-*.jar
   if [ "$HCAT_HOME" == "" ]; then
-    if [ -d "/usr/lib/hcatalog" ]; then
-      HCAT_HOME=/usr/lib/hcatalog
+   if [ -f "/usr/bin/hcat" ]; then
+      HCAT_HOME=`find_home "/usr/bin/hcat"`
     else
       echo "Please initialize HCAT_HOME"
       exit -1
@@ -342,6 +363,8 @@ if [ "$includeHCatalog" == "true" ]; then
   fi
   PIG_OPTS="$PIG_OPTS -Dpig.additional.jars=$ADDITIONAL_CLASSPATHS"
 fi
+
+export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
 
 # run it
 if [ -n "$HADOOP_BIN" ]; then
