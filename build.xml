@@ -556,8 +556,8 @@
         <echo>*** Building Test Sources ***</echo>
         <echo>*** To compile with all warnings enabled, supply -Dall.warnings=1 on command line ***</echo>
         <echo>*** Else, you will only be warned about deprecations ***</echo>
-        <compileSources sources="${test.src.dir};${src.shims.test.dir}"
-            excludes="**/PigTestLoader.java **/resources/** perf/**" dist="${test.build.classes}" cp="test.classpath" warnings="${javac.args.warnings}" />
+        <compileSources sources="${test.src.dir};${src.shims.test.dir};${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/datagen;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/mapreduce;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/udf"
+		excludes="**/PigTestLoader.java **/resources/** perf/**" dist="${test.build.classes}" cp="test.classpath" warnings="${javac.args.warnings}" />
         <copy file="${basedir}/test/hbase-site.xml" tofile="${test.build.classes}/hbase-site.xml"/>
 
         <ivy:cachepath pathid="mr-apps-test-ivy.classpath" conf="test" />
@@ -854,7 +854,7 @@
              </manifest>
             <fileset dir="${test.build.dir}/classes">
                 <include name="org/apache/pig/test/pigmix/**"/>
-                <include name="org/apache/pig/test/utils/datagen/*"/>
+		<!-- <include name="org/apache/pig/test/utils/datagen/*"/>   -->
             </fileset>
             <zipfileset src="${lib.dir}/sdsuLibJKD12.jar" />
         </jar>

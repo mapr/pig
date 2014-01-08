@@ -31,7 +31,7 @@ then
 fi
 if [ -z $PIG_VERSION ]
 then
-  PIG_VERSION="0.12"
+  PIG_VERSION="0.12.1"
 fi
 if [ -z "$pigjar" ]
 then
@@ -55,7 +55,7 @@ maprcli volume create -name pigmix -path $PIG_DATA -replication 3
 maprcli volume create -name pigmixresults -path $PIG_RESULTS -replication 3
 maprcli volume create -name mapredpigmixresults -path $MAPRED_PIG_RESULTS -replication 3
 
-maprfsjar=$HADOOP_HOME/lib/maprfs-1.0.3-mapr-3.0.0-SNAPSHOT.jar
+maprfsjar=`echo $HADOOP_HOME/lib/maprfs-1*`
 
 hadoopjar=$HADOOP_HOME/lib/hadoop-0.20.2-dev-core.jar
 
