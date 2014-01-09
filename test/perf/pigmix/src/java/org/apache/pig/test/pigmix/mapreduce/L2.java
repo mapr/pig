@@ -124,7 +124,7 @@ public class L2 {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
         DistributedCache.addCacheFile(
-            new URI(inputDir + "/power_users"), lp);
+            new URI(inputDir + "/power_users/power_users"), lp);
         FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/L2out"));
         lp.setNumReduceTasks(0);
