@@ -150,7 +150,7 @@ if [ "$PIG_HEAPSIZE" != "" ]; then
 fi
 
 # CLASSPATH initially contains $PIG_CONF_DIR
-CLASSPATH="${PIG_CONF_DIR}"
+CLASSPATH=${CLASSPATH}:"${PIG_CONF_DIR}"
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 if [ "$includeHCatalog" == "true" ]; then
   # need to provide the hcatalog jar file path as well as
