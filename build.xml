@@ -794,10 +794,13 @@
             </zipgroupfileset>
             <fileset file="${basedir}/src/pig-default.properties" />
             <fileset file="${basedir}/src/main/jruby/pigudf.rb" />
-            <exclude name="hadoop-site.xml" />
+	    <exclude name="hadoop-site.xml" />
         </jar>
         <antcall target="include-meta" inheritRefs="true" inheritall="true"/>
         <copy file="${pig.jar}" tofile="${output.jarfile.backcompat}"/>
+        <copy todir="${basedir}/lib">
+            <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
+        </copy>
     </target>
 
     <target name="smoketests-jar" depends="pigunit-jar"
