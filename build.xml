@@ -709,7 +709,10 @@
         <buildJar svnString="${svn.revision}" outputFile="${output.jarfile.core}" includedJars="core.dependencies.jar"/>
         <buildJar svnString="${svn.revision}" outputFile="${pig.jar}" includedJars="runtime.dependencies.jar"/>
         <copy file="${pig.jar}" tofile="${output.jarfile.backcompat}"/>
-        <antcall target="include-meta" inheritRefs="true" inheritall="true"/>
+	<antcall target="include-meta" inheritRefs="true" inheritall="true"/>
+        <copy todir="${basedir}/lib">
+            <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
+        </copy>	
     </target>
 
     <target name="include-meta" if="isHadoop23">
@@ -802,7 +805,7 @@
                 <fileset file="${basedir}/src/main/jruby/pigudf.rb" />
                 <exclude name="hadoop-site.xml" />
             </jar>
-        </sequential>
+         </sequential>
     </macrodef>
 
     <!-- ================================================================== -->
