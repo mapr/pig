@@ -68,6 +68,8 @@ import org.apache.pig.impl.util.UDFContext;
 import org.apache.pig.tools.pigstats.PigStats;
 import org.apache.pig.tools.pigstats.PigStatsUtil;
 import org.apache.pig.tools.pigstats.ScriptState;
+import java.net.InetSocketAddress;
+import java.lang.reflect.Method;
 
 
 /**
@@ -229,21 +231,28 @@ public class MapReduceLauncher extends Launcher{
             PigStatsUtil.updateJobMroMap(jcc.getJobMroMap());
             
             // determine job tracker url 
-            String jobTrackerLoc;
+            String jobTrackerLoc=null;
             JobConf jobConf = jobsWithoutIds.get(0).getJobConf();
             try {
                 String port = jobConf.get("mapred.job.tracker.http.address");
-                String jobTrackerAdd = jobConf.get(HExecutionEngine.JOB_TRACKER_LOCATION);
-                
-                jobTrackerLoc = jobTrackerAdd.substring(0,jobTrackerAdd.indexOf(":")) 
-                + port.substring(port.indexOf(":"));
+                FileSystem fs = FileSystem.get(jobConf);
+		Class<? extends FileSystem> fclass = fs.getClass();
+ 		InetSocketAddress[] jobTrackerAddr=null;
+                Method method = fclass.getMethod("getJobTrackerAddrs", new Class[]{Configuration.class});
+		if (method == null)
+                    throw new Exception("No FileSystem method getJobTrackerAddrs exists");
+                jobTrackerAddr = (InetSocketAddress[]) method.invoke(fs, jobConf);
+                if (jobTrackerAddr[0] != null) {
+                    String jobTrackerHost = jobTrackerAddr[0].getHostName();
+                    jobTrackerLoc = jobTrackerHost + port.substring(port.indexOf(":"));
+		}
             }
             catch(Exception e){
                 // Could not get the job tracker location, most probably we are running in local mode.
                 // If it is the case, we don't print out job tracker location,
                 // because it is meaningless for local mode.
-            	jobTrackerLoc = null;
-                log.debug("Failed to get job tracker location.");
+		jobTrackerLoc = null;
+                log.debug("Failed to get job tracker location.", e);
             }
             
             completeFailedJobsInThisRun.clear();
