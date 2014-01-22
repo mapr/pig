@@ -1,9 +1,9 @@
 Note:
 We generated pig data using the following script on a 15-node hadoop test cluster
 
-export PIG_HOME=/opt/mapr/pig/pig-0.11.2
+export PIG_HOME=/opt/mapr/pig/pig-0.11
 export PIG_VERSION=0.11.2
-export pigjar=$PIG_HOME/pig-0.11.2-mapr-SNAPSHOT-core.jar
+export pigjar=$PIG_HOME/pig-0.11.2-mapr-SNAPSHOT-withouthadoop.jar
 export MAPPERS=108
 export REDUCERS=76
 $PIG_HOME/test/perf/pigmix/bin/generate_data_0.11.2.sh -r 325000000 -w 10000000 -u 500
