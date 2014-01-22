@@ -65,7 +65,7 @@ zookeeperjar=`echo /opt/mapr/zookeeper/zookeeper-*/zookeeper-*.jar`
 conf_dir=$HADOOP_HOME/conf
 
 pig_conf=$PIG_HOME/conf/pig.properties
-jsonjar=/opt/mapr/lib/json*.jar 
+jsonjar=`echo /opt/mapr/lib/json*.jar`
 
 classpath=$jsonjar:$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*
 
