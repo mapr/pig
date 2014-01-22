@@ -65,8 +65,8 @@ conf_dir=$HADOOP_HOME/conf
 
 pig_conf=$PIG_HOME/conf/pig.properties
 jsonjar=`echo /opt/mapr/lib/json*.jar`
-
-classpath=$jsonjar:$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*
+maprlib="/opt/mapr/lib"
+classpath=$jsonjar:$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*:$maprlib/*
 
 export HADOOP_CLASSPATH=$classpath
 
