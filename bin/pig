@@ -300,6 +300,12 @@ if [ -z "$HADOOP_BIN" ]; then
 fi
 
 # if using HBase, likely want to include HBase jars and config
+if which hbase >/dev/null; then
+    HBASE_JAR=`hbase classpath`
+fi    
+if [ -n "$HBASE_JAR" ]; then
+    CLASSPATH=${CLASSPATH}:$HBASE_JAR
+fi
 HBH=${HBASE_HOME:-"${PIG_HOME}/share/hbase"}
 if [ -d "${HBH}" ]; then
     for f in ${HBH}/hbase-*.jar; do
