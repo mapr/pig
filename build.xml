@@ -761,8 +761,8 @@
         <propertyreset name="isHadoop" value="true" />
         <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
         <antcall target="clean" inheritRefs="true" inheritall="true"/>
-        <antcall target="jar" inheritRefs="true" inheritall="true"/>
         <antcall target="jar-withouthadoop" inheritRefs="true" inheritall="true"/>
+        <antcall target="jar" inheritRefs="true" inheritall="true"/>
         <!-- Move and rename pig jar for Hadoop2/23 to a different location before compiling for Hadoop1/20 -->
         <move file="${output.jarfile.core}" tofile="${basedir}/${artifact.pig-h2.jar}"/>
         <move file="${output.jarfile.withouthadoop}" tofile="${basedir}/${artifact.pig-withouthadoop-h2.jar}"/>
