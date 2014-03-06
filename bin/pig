@@ -48,8 +48,12 @@
 #                      when using HBaseStorage. Defaults to ${HBASE_HOME}/conf
 
 BASEMAPR=${MAPR_HOME:-/opt/mapr}
-export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
-
+HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'` 
+if [ HADOOP_VERSION == hadoop-0.20.2 ]; then
+    export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
+else
+    export HADOOP_HOME=${BASEMAPR}/hadoop/${HADOOP_VERSION}/
+fi
 env=$BASEMAPR/conf/env.sh
 [ -f $env ] && . $env
 
@@ -378,10 +382,14 @@ if [ -n "$HADOOP_BIN" ]; then
         echo "Find hadoop at $HADOOP_BIN"
     fi
 
-    if [ -f $PIG_HOME/pig-withouthadoop.jar ]; then
-        PIG_JAR=$PIG_HOME/pig-withouthadoop.jar
-    else
-        PIG_JAR=`echo $PIG_HOME/pig-?.*withouthadoop.jar`
+    if [ HADOOP_VERSION == hadoop-0.20.2 ]; then
+        if [ -f $PIG_HOME/pig-withouthadoop.jar ]; then
+            PIG_JAR=$PIG_HOME/pig-withouthadoop.jar
+        else
+            PIG_JAR=`echo $PIG_HOME/pig-?.*withouthadoop.jar`
+        fi
+    else 
+        PIG_JAR=`echo $PIG_HOME/pig-?.*withouthadoop-h2.jar`
     fi
 
     # for deb/rpm package, add pig jar in /usr/share/pig
