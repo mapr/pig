@@ -20,7 +20,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.pig</groupId>
   <artifactId>pig-withouthadoop</artifactId>
-  <classifier>h2</classifier>
   <packaging>jar</packaging>
   <version>@version</version>
   <dependencies>
