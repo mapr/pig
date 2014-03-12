@@ -1205,10 +1205,7 @@
          <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
           <artifact:install file="${output.jarfile.withouthadoop}">
                <pom refid="pig-withouthadoop"/>
-          </artifact:install>
-         <artifact:pom file="${pig-withouthadoop-h2.pom}" id="pig-withouthadoop-h2"/>
-          <artifact:install file="${output.jarfile.withouthadoop-h2}">
-               <pom refid="pig-withouthadoop-h2"/>
+               <attach file="${output.jarfile.withouthadoop-h2}" type="jar" classifier="h2"/>
           </artifact:install>
          <artifact:pom file="${pigunit.pom}" id="pigunit"/>
           <artifact:install file="${pigunit.jarfile}">
@@ -1254,12 +1251,15 @@
            <attach file="${output.jarfile.javadoc}.asc" type="jar.asc"  classifier="javadoc"/>
            <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
         </artifact:deploy>
-        <artifact:pom file="${pig-withouthadoop-h2.pom}" id="pig-withouthadoop-h2"/>
-        <artifact:deploy file="${output.jarfile.withouthadoop-h2}">
+        <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
+        <artifact:deploy file="${output.jarfile.withouthadoop}">
            <remoteRepository id="${staging_repo_id}" url="${env.MAPR_MAVEN_REPO}"/>
-           <pom refid="pig-withouthadoop-h2"/>
-           <attach file="${output.jarfile.withouthadoop-h2}.asc" type="jar.asc"/>
-           <attach file="${pig-withouthadoop-h2.pom}.asc" type="pom.asc"/>
+           <pom refid="pig-withouthadoop"/>
+           <attach file="${output.jarfile.withouthadoop}.asc" type="jar.asc"/>
+           <attach file="${pig-withouthadoop.pom}.asc" type="pom.asc"/>
+           <attach file="${output.jarfile.withouthadoop-h2}" type="jar" classifier="h2"/>
+           <attach file="${output.jarfile.withouthadoop-h2}.asc" type="jar.asc" classifier="h2"/>
+           <attach file="${pig-withouthadoop-h2.pom}.asc" type="pom.asc" classifier="h2"/>
         </artifact:deploy>
         <artifact:pom file="${pigunit.pom}" id="pigunit"/>
         <artifact:deploy file="${pigunit.jarfile}">
@@ -1299,11 +1299,7 @@
       <artifact:deploy file="${output.jarfile.withouthadoop}">
               <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pig-withouthadoop"/>
-      </artifact:deploy>
-     <artifact:pom file="${pig-withouthadoop-h2.pom}" id="pig-withouthadoop-h2"/>
-      <artifact:deploy file="${output.jarfile.withouthadoop-h2}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
-              <pom refid="pig-withouthadoop-h2"/>
+              <attach file="${output.jarfile.withouthadoop-h2}" type="jar" classifier="h2"/>
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
