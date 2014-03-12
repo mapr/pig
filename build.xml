@@ -1243,7 +1243,7 @@
         <artifact:pom file="${pig.pom}" id="pig"/>
         <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
         <artifact:deploy file="${output.jarfile.core}">
-         <remoteRepository id="mapr-releases" url="${env.MAPR_RELEASES_REPO}"/>
+         <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
          <pom refid="pig"/>
            <attach file="${output.jarfile.core}.asc" type="jar.asc"/>
            <attach file="${pig.pom}.asc" type="pom.asc"/>
@@ -1256,28 +1256,28 @@
         </artifact:deploy>
         <artifact:pom file="${pig-withouthadoop-h2.pom}" id="pig-withouthadoop-h2"/>
         <artifact:deploy file="${output.jarfile.withouthadoop-h2}">
-           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="pig-withouthadoop-h2"/>
            <attach file="${output.jarfile.withouthadoop-h2}.asc" type="jar.asc"/>
            <attach file="${pig-withouthadoop-h2.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${pigunit.pom}" id="pigunit"/>
         <artifact:deploy file="${pigunit.jarfile}">
-           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="pigunit"/>
            <attach file="${pigunit.jarfile}.asc" type="jar.asc"/>
            <attach file="${pigunit.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
         <artifact:deploy file="${smoke.tests.jarfile}">
-           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="pigsmoke"/>
            <attach file="${smoke.tests.jarfile}.asc" type="jar.asc"/>
            <attach file="${pigsmoke.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${piggybank.pom}" id="piggybank"/>
         <artifact:deploy file="${piggybank.jarfile}">
-           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="piggybank"/>
            <attach file="${piggybank.jarfile}.asc" type="jar.asc"/>
            <attach file="${piggybank.pom}.asc" type="pom.asc"/>
@@ -1288,7 +1288,7 @@
       <artifact:pom file="${pig.pom}" id="pig"/>
       <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
       <artifact:deploy file="${output.jarfile.core}">
-            <remoteRepository id="mapr-snapshots" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+            <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pig"/>
               <attach file="${output.jarfile.core-h2}" classifier="h2" />
               <attach file="${output.jarfile.sources}" classifier="sources" />
@@ -1297,27 +1297,27 @@
    
      <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
       <artifact:deploy file="${output.jarfile.withouthadoop}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pig-withouthadoop"/>
       </artifact:deploy>
      <artifact:pom file="${pig-withouthadoop-h2.pom}" id="pig-withouthadoop-h2"/>
       <artifact:deploy file="${output.jarfile.withouthadoop-h2}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pig-withouthadoop-h2"/>
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pigunit"/>
       </artifact:deploy>
       <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
       <artifact:deploy file="${smoke.tests.jarfile}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pigsmoke"/>
       </artifact:deploy>
       <artifact:pom file="${piggybank.pom}" id="piggybank"/>
       <artifact:deploy file="${piggybank.jarfile}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_SNAPSHOTS_REPO}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="piggybank"/>
       </artifact:deploy>
     </target>
