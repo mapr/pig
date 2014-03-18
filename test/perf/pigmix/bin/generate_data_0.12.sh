@@ -18,7 +18,15 @@ done
 set -x 
 
 java=${JAVA_HOME:='/usr'}/bin/java;
-hadoop_ops="-Djava.library.path=/opt/mapr/lib:$HADOOP_HOME/lib/native/Linux-amd64-64 -Dmapred.map.child.java.opts=-Xmx2000m -Dmapred.reduce.child.java.opts=-Xmx2000m -Dio.sort.mb=350"
+BASEMAPR=${MAPR_HOME:-/opt/mapr}
+HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'` 
+if [ HADOOP_VERSION == hadoop-0.20.2 ]; then
+    export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
+else
+    export HADOOP_HOME=${BASEMAPR}/hadoop/${HADOOP_VERSION}/
+fi
+JNIPATH=`hadoop jnipath | awk -F ":" '{print $1}'`
+hadoop_ops="-Djava.library.path=/opt/mapr/lib:$JNIPATH -Dmapred.map.child.java.opts=-Xmx1000m -Dmapred.reduce.child.java.opts=-Xmx1000m -Dio.sort.mb=350"
 
 if [ ! -e $java ] 
 then
@@ -27,7 +35,8 @@ then
 fi
 if [ -z $PIG_HOME ]
 then
-  PIG_HOME="/opt/mapr/pig/pig-0.12"
+  BIN_PIG=`readlink -f \`which pig\`` 	
+  PIG_HOME=`dirname $BIN_PIG`/..
 fi
 if [ -z $PIG_VERSION ]
 then
@@ -35,10 +44,13 @@ then
 fi
 if [ -z "$pigjar" ]
 then
-  pigjar=$PIG_HOME/pig-${PIG_VERSION}-mapr-SNAPSHOT-withouthadoop.jar
+    if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
+        pigjar=`echo $PIG_HOME/pig-withouthadoop.jar`
+    else
+        pigjar=`echo $PIG_HOME/pig-?.*withouthadoop-h2.jar`
+    fi		    
 fi
 
-HADOOP_HOME="/opt/mapr/hadoop/hadoop-0.20.2"
 testjar=$PIG_HOME/pigperf.jar
 PIG_DATA="/pigmix"
 hdfsroot="/pigmix"
@@ -55,19 +67,9 @@ maprcli volume create -name pigmix -path $PIG_DATA -replication 3
 maprcli volume create -name pigmixresults -path $PIG_RESULTS -replication 3
 maprcli volume create -name mapredpigmixresults -path $MAPRED_PIG_RESULTS -replication 3
 
-maprfsjar=`echo $HADOOP_HOME/lib/maprfs-1*`
-
-hadoopjar=$HADOOP_HOME/lib/hadoop-0.20.2-dev-core.jar
-
-zookeeperjar=`echo /opt/mapr/zookeeper/zookeeper-*/zookeeper-*.jar`
-
-# configure the cluster
-conf_dir=$HADOOP_HOME/conf
-
 pig_conf=$PIG_HOME/conf/pig.properties
-jsonjar=`echo /opt/mapr/lib/json*.jar`
-maprlib="/opt/mapr/lib"
-classpath=$jsonjar:$hadoopjar:$pigjar:$pig_conf:$testjar:$maprfsjar:$zookeeperjar:$conf_dir:$HADOOP_HOME/lib/*:$maprlib/*
+classpath=`hadoop classpath`
+classpath=${classpath}:$pigjar:$pig_conf:$testjar
 
 
 export HADOOP_CLASSPATH=$classpath
@@ -104,7 +106,7 @@ pages=$hdfsroot/page_views
 echo "Generating $pages"
 
 
-$HADOOP_HOME/bin/hadoop --config $conf_dir jar $testjar $mainclass $hadoop_ops \
+$HADOOP_HOME/bin/hadoop  jar $testjar $mainclass $hadoop_ops \
     -m $mappers -r $rows -f $pages $user_field \
     $action_field $os_field $query_term_field $ip_addr_field \
     $timestamp_field $estimated_revenue_field $page_info_field \
@@ -141,7 +143,7 @@ users=$hdfsroot/users
 
 echo "Generating $users"
 
-$HADOOP_HOME/bin/hadoop --config $conf_dir jar $testjar $mainclass $hadoop_ops \
+$HADOOP_HOME/bin/hadoop jar $testjar $mainclass $hadoop_ops \
     -m $mappers -i $protousers -f $users $phone_field \
     $address_field $city_field $state_field $zip_field
 
@@ -171,7 +173,7 @@ echo "Generating $powerusers"
 
 powerusers=$hdfsroot/power_users
 
-$HADOOP_HOME/bin/hadoop --config $conf_dir jar $testjar $mainclass $hadoop_ops \
+$HADOOP_HOME/bin/hadoop jar $testjar $mainclass $hadoop_ops \
     -m $mappers -i $protopowerusers -f $powerusers $phone_field \
     $address_field $city_field $state_field $zip_field
 
@@ -185,7 +187,7 @@ widerows=$hdfsroot/widerow
 user_field=s:20:10000:z:0
 int_field=i:1:10000:u:0 
 
-$HADOOP_HOME/bin/hadoop --config $conf_dir jar $testjar $mainclass $hadoop_ops \
+$HADOOP_HOME/bin/hadoop  jar $testjar $mainclass $hadoop_ops \
     -m $mappers -r $widerowcnt -f $widerows $user_field \
     $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field \
     $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field \
