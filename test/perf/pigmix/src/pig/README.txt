@@ -16,9 +16,9 @@ pig -p PIGMIX_JAR=$PIG_HOME/pigperf.jar  -p PARALLEL=7 -p PIGMIX_OUTPUT=/pigmixr
 
 Script to runpigmix with example usage on MR1 (or yarn configured to run on MR1) - 
 
-./runpigmix.pl /opt/mapr/pig/pig-0.12 /opt/mapr/pig/pig-0.12/bin/pig  /opt/mapr/pig/pig-0.12/pigperf.jar pig-withouthadoop.jar /opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
+./runpigmix.pl /opt/mapr/pig/pig-0.12 /opt/mapr/pig/pig-0.12/bin/pig  /opt/mapr/pig/pig-0.12/pigperf.jar /opt/mapr/hadoop/hadoop-0.20.2 /opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
 
 Script to runpigmix with example usage on MR2 (yarn)- 
 
-./runpigmix.pl /opt/mapr/pig/pig-0.12 /opt/mapr/pig/pig-0.12/bin/pig  /opt/mapr/pig/pig-0.12/pigperf.jar pig-0.12.1-mapr-SNAPSHOT-withouthadoop-h2.jar /opt/mapr/hadoop/hadoop-2.3.0/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
+./runpigmix.pl /opt/mapr/pig/pig-0.12 /opt/mapr/pig/pig-0.12/bin/pig  /opt/mapr/pig/pig-0.12/pigperf.jar /opt/mapr/hadoop/hadoop-2.3.0 /opt/mapr/hadoop/hadoop-2.3.0/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
 

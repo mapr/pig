@@ -2,13 +2,13 @@
 
 if(scalar(@ARGV) < 6 )
 {
-    print STDERR "Usage: $0 <pig_home> <pig_bin> <pigmix_jar> <pig_jar> <hadoopbin> <pigmix_scripts_dir> <hdfs_root> <pigmix_output> [parallel] [numruns] [runmapreduce] \n";
+    print STDERR "Usage: $0 <pig_home> <pig_bin> <pigmix_jar> <hadoop_home> <hadoopbin> <pigmix_scripts_dir> <hdfs_root> <pigmix_output> [parallel] [numruns] [runmapreduce] \n";
     exit(-1);
 }
 my $pighome = shift;
 my $pigbin = shift;
 my $pigmixjar = shift;
-my $pig_jar = shift;
+my $hadoophome = shift;
 my $hadoopbin = shift;
 my $scriptdir = shift;
 my $hdfsroot = shift;
@@ -16,7 +16,6 @@ my $pigmixoutput = shift;
 my $parallel = shift;
 my $runs = shift;
 my $runmapreduce = shift;
-my $pigjar = "$pighome/$pig_jar";
 if(!defined($parallel)) {
     $parallel = 40;
 }
