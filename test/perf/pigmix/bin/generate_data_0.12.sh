@@ -20,7 +20,7 @@ set -x
 java=${JAVA_HOME:='/usr'}/bin/java;
 BASEMAPR=${MAPR_HOME:-/opt/mapr}
 HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'` 
-if [ HADOOP_VERSION == hadoop-0.20.2 ]; then
+if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
     export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
 else
     export HADOOP_HOME=${BASEMAPR}/hadoop/${HADOOP_VERSION}/
@@ -44,11 +44,7 @@ then
 fi
 if [ -z "$pigjar" ]
 then
-    if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
-        pigjar=`echo $PIG_HOME/pig-withouthadoop.jar`
-    else
-        pigjar=`echo $PIG_HOME/pig-?.*withouthadoop-h2.jar`
-    fi		    
+    pigjar=`echo $PIG_HOME/pig-withouthadoop.jar`
 fi
 
 testjar=$PIG_HOME/pigperf.jar
