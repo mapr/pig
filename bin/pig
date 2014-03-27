@@ -381,14 +381,10 @@ if [ -n "$HADOOP_BIN" ]; then
     if [ "$debug" == "true" ]; then
         echo "Find hadoop at $HADOOP_BIN"
     fi
-    if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
-        if [ -f $PIG_HOME/pig-withouthadoop.jar ]; then
-            PIG_JAR=$PIG_HOME/pig-withouthadoop.jar
-        else
-            PIG_JAR=`echo $PIG_HOME/pig-?.*withouthadoop.jar`
-        fi
-    else 
-        PIG_JAR=`echo $PIG_HOME/pig-?.*withouthadoop-h2.jar`
+    if [ -f $PIG_HOME/pig-withouthadoop.jar ]; then
+        PIG_JAR=$PIG_HOME/pig-withouthadoop.jar
+    else
+        PIG_JAR=`echo $PIG_HOME/pig-?.*withouthadoop.jar`
     fi
 
     # for deb/rpm package, add pig jar in /usr/share/pig
