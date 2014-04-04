@@ -49,7 +49,7 @@
 
 BASEMAPR=${MAPR_HOME:-/opt/mapr}
 HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'` 
-if [ HADOOP_VERSION == hadoop-0.20.2 ]; then
+if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
     export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
 else
     export HADOOP_HOME=${BASEMAPR}/hadoop/${HADOOP_VERSION}/
