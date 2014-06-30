@@ -28,6 +28,8 @@ Release 0.12.1 (unreleased changes)
 
 BUG FIXES
 
+PIG-3813: Rank column is assigned different uids everytime when schema is reset (cheolsoo)
+
 PIG-3512: Reducer estimater is broken by PIG-3497
 
 Release 0.12.0
