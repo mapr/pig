@@ -29,6 +29,8 @@ if(!defined($runmapreduce)) {
 my $cmd;
 my $total_pig_times = 0;
 my $total_mr_times = 0;
+$hadoopbin=`which hadoop`;
+
 
 print STDERR "Removing output dir $pigmixoutput \n";
 $cmd = "$hadoopbin fs -rmr $pigmixoutput";

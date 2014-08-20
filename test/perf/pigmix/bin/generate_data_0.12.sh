@@ -101,8 +101,9 @@ page_links_field=bm:10:1:z:20
 pages=$hdfsroot/page_views
 echo "Generating $pages"
 
+HADOOP_BIN=`which hadoop`
 
-$HADOOP_HOME/bin/hadoop  jar $testjar $mainclass $hadoop_ops \
+$HADOOP_BIN jar $testjar $mainclass $hadoop_ops \
     -m $mappers -r $rows -f $pages $user_field \
     $action_field $os_field $query_term_field $ip_addr_field \
     $timestamp_field $estimated_revenue_field $page_info_field \
@@ -139,7 +140,7 @@ users=$hdfsroot/users
 
 echo "Generating $users"
 
-$HADOOP_HOME/bin/hadoop jar $testjar $mainclass $hadoop_ops \
+$HADOOP_BIN jar $testjar $mainclass $hadoop_ops \
     -m $mappers -i $protousers -f $users $phone_field \
     $address_field $city_field $state_field $zip_field
 
@@ -169,7 +170,7 @@ echo "Generating $powerusers"
 
 powerusers=$hdfsroot/power_users
 
-$HADOOP_HOME/bin/hadoop jar $testjar $mainclass $hadoop_ops \
+$HADOOP_BIN jar $testjar $mainclass $hadoop_ops \
     -m $mappers -i $protopowerusers -f $powerusers $phone_field \
     $address_field $city_field $state_field $zip_field
 
@@ -183,7 +184,7 @@ widerows=$hdfsroot/widerow
 user_field=s:20:10000:z:0
 int_field=i:1:10000:u:0 
 
-$HADOOP_HOME/bin/hadoop  jar $testjar $mainclass $hadoop_ops \
+$HADOOP_BIN jar $testjar $mainclass $hadoop_ops \
     -m $mappers -r $widerowcnt -f $widerows $user_field \
     $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field \
     $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field \
