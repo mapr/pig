@@ -20,13 +20,16 @@
     <!-- <property name="lib.dir" value="${basedir}/lib" />
     <property name="pig.jarfile" value="${lib.dir}/pig.jar" /> -->
     <property name="udf.src.dir" value="${basedir}/org/" />
-
+    <property name="build-ivy-lib" location="../../../../../build/ivy/lib/Pig/" />
 
     <path id="udf-classpath">
     <!-- <fileset dir="lib">
             <include name="**/*.jar"/> 
     </fileset>-->
         <fileset file="${pig.jarfile}" />
+        <fileset dir="${build-ivy-lib}">
+	    <include name="*.jar" />
+        </fileset>
     </path>
 
     <target name="init">

@@ -121,6 +121,9 @@ public class WeightedRangePartitioner extends Partitioner<PigNullableWritable, W
             if (configuration.get("fs.hdfs.impl") != null) {
                 conf.set("fs.hdfs.impl", configuration.get("fs.hdfs.impl"));
             }
+            if (configuration.get("fs.maprfs.impl")!=null) {
+               conf.set("fs.maprfs.impl", configuration.get("fs.maprfs.impl"));
+	    }   
 
             MapRedUtil.copyTmpFileConfigurationValues(configuration, conf);
 

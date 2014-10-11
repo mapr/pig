@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 if(scalar(@ARGV) < 6 )
 {
@@ -16,7 +16,6 @@ my $pigmixoutput = shift;
 my $parallel = shift;
 my $runs = shift;
 my $runmapreduce = shift;
-my $pigjar = "$pighome/pig-withouthadoop.jar";
 if(!defined($parallel)) {
     $parallel = 40;
 }
@@ -33,6 +32,8 @@ $ENV{'HADOOP_CLIENT_OPTS'}="-Xmx1024m";
 my $cmd;
 my $total_pig_times = 0;
 my $total_mr_times = 0;
+$hadoopbin=`which hadoop`;
+chomp($hadoopbin);
 
 print STDERR "Removing output dir $pigmixoutput \n";
 $cmd = "$hadoopbin fs -rmr $pigmixoutput";

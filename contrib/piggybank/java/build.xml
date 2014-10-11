@@ -39,6 +39,7 @@
     <property name="udfjar" value="piggybank.jar" />
     <property name="src.dir" value="src/main/java/org/apache/pig/piggybank" />
     <property name="hsqldb.jar" value="../../../build/ivy/lib/Pig/hsqldb-1.8.0.10.jar"/>
+    <property name="jsp-api-lib" location="../../../build/ivy/lib/Pig/" />
 
     <!-- JobHistoryLoader currently does not support 0.23 -->
     <condition property="build.classes.excludes" value="**/HadoopJobHistoryLoader.java" else="">
@@ -94,6 +95,11 @@
         target="${javac.version}" optimize="${javac.optimize}" deprecation="${javac.deprecation}" excludes="${build.classes.excludes}" encoding="${build.encoding}">
             <compilerarg line="${javac.args} ${javac.args.warnings}" />
             <classpath refid="pigudf.classpath"/>
+              <classpath>
+                <fileset dir="${jsp-api-lib}">
+                    <include name="jsp*.jar" />
+                </fileset>
+              </classpath>
         </javac>
     </target>
     <target depends="init,compile" name="jar" description="create the jar files">
@@ -142,6 +148,9 @@
                author="true">
         <fileset dir="${src.dir}/evaluation" includes="**/*.java"/>
         <fileset dir="${src.dir}/storage" includes="**/*.java"/>
+        <fileset dir="${src.dir}/filtering" includes="**/*.java"/>
+        <fileset dir="${src.dir}/grouping" includes="**/*.java"/>
+        <fileset dir="${src.dir}/comparison" includes="**/*.java"/>
         <classpath refid="pigudf.classpath"/>
       </javadoc>
     </target>

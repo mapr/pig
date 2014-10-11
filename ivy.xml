@@ -403,6 +403,8 @@
     </dependency>
 
     <dependency org="org.mockito" name="mockito-all" rev="${mockito.version}" conf="compile->default"/>
+    <dependency org="org.mortbay.jetty" name="jsp-2.1" rev="${jsp-2.1.version}" conf="compile->default"/>
+    <dependency org="org.mortbay.jetty" name="jsp-api-2.1" rev="${jsp-api-2.1.version}" conf="compile->default"/>
        
     <dependency org="com.twitter" name="parquet-pig-bundle" rev="${parquet-pig-bundle.version}" conf="compile->master"/>
 
