@@ -737,6 +737,7 @@
         <buildJar svnString="${svn.revision}" outputFile="${output.jarfile.withdependencies}" includedJars="runtime.dependencies.jar"/>
         <copy todir="${basedir}/lib">
             <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="parquet*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="commons-io*.jar"/>
         </copy>
         <antcall target="copyHadoop1">
