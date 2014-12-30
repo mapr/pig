@@ -751,6 +751,8 @@
             <fileset dir="${ivy.lib.dir}" includes="json-simple-*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="kryo-*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="commons-io*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="parquet*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
         </copy>
     </target>
 
