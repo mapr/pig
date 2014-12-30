@@ -47,6 +47,16 @@
 #     HBASE_CONF_DIR - Optionally, the HBase configuration to run against
 #                      when using HBaseStorage. Defaults to ${HBASE_HOME}/conf
 
+BASEMAPR=${MAPR_HOME:-/opt/mapr}
+HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'`
+if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
+ export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
+else
+ export HADOOP_HOME=${BASEMAPR}/hadoop/${HADOOP_VERSION}/
+fi
+env=$BASEMAPR/conf/env.sh
+[ -f $env ] && . $env
+
 cygwin=false
 case "`uname`" in
 CYGWIN*) cygwin=true;;
@@ -75,8 +85,27 @@ for f in "$@"; do
      fi
 done
 
+function find_home() {
+target="$1"
+
+# file exists and is a symbolic link
+while [ -h "$target" ]; do
+target=`readlink "$target"`
+done
+
+# find home
+home_dir=`dirname "$target"` # points to bin dir
+home_dir="$home_dir/../"
+echo "$home_dir"
+}
+
+
 # resolve links - $0 may be a softlink
 this="${BASH_SOURCE-$0}"
+
+if [ -L $0 ]; then
+this=`readlink $0`
+fi
 
 # convert relative path to absolute path
 bin=$(cd -P -- "$(dirname -- "$this")">/dev/null && pwd -P)
@@ -125,7 +154,7 @@ if [ "$PIG_HEAPSIZE" != "" ]; then
 fi
 
 # CLASSPATH initially contains $PIG_CONF_DIR
-CLASSPATH="${PIG_CONF_DIR}"
+CLASSPATH=${CLASSPATH}:"${PIG_CONF_DIR}"
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 if [ "$includeHCatalog" == "true" ]; then
   # need to provide the hcatalog jar file path as well as
@@ -138,8 +167,8 @@ if [ "$includeHCatalog" == "true" ]; then
   slfJar=slf4j-api-*.jar
   hbaseHiveJar=hive-hbase-handler-*.jar
   if [ "$HIVE_HOME" == "" ]; then
-    if [ -d "/usr/lib/hive" ]; then
-      HIVE_HOME=/usr/lib/hive
+     if [ -f "/usr/bin/hive" ]; then
+       HIVE_HOME=`find_home "/usr/bin/hive"`
     else
       echo "Please initialize HIVE_HOME"
       exit -1
@@ -161,10 +190,10 @@ if [ "$includeHCatalog" == "true" ]; then
   hbaseHCatJar=*hbase-storage-handler-*.jar
   pigHCatJar=*hcatalog-pig-adapter-*.jar
   if [ "$HCAT_HOME" == "" ]; then
-    if [ -d "/usr/lib/hcatalog" ]; then
-      HCAT_HOME=/usr/lib/hcatalog
-    elif [ -d "/usr/lib/hive-hcatalog" ]; then
-      HCAT_HOME=/usr/lib/hive-hcatalog
+    if [ -f "/usr/bin/hcat" ]; then
+      HCAT_HOME=`find_home "/usr/bin/hcat"`
+    elif [ -f "/usr/bin/hive-hcatalog" ]; then
+      HCAT_HOME=`find_home "/usr/bin/hive-hcatalog"`
     else
       echo "Please initialize HCAT_HOME"
       exit -1
@@ -305,6 +334,12 @@ else
 fi
 
 # if using HBase, likely want to include HBase jars and config
+if which hbase >/dev/null; then
+ HBASE_JAR=`hbase classpath`
+fi
+if [ -n "$HBASE_JAR" ]; then
+ CLASSPATH=${CLASSPATH}:$HBASE_JAR
+fi
 HBH=${HBASE_HOME:-"${PIG_HOME}/share/hbase"}
 if [ -d "${HBH}" ]; then
     for f in ${HBH}/hbase-*.jar; do
@@ -360,6 +395,8 @@ if [ "$includeHCatalog" == "true" ]; then
   fi
   PIG_OPTS="$PIG_OPTS -Dpig.additional.jars.uris=$ADDITIONAL_CLASSPATHS"
 fi
+
+export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
 
 # run it
 if [ -n "$HADOOP_BIN" ]; then

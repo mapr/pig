@@ -4,8 +4,10 @@ src-gen/
 test/org/apache/pig/test/utils/dotGraph/parser/
 target/
 ivy/*.jar
-pig.jar
-pig-withouthadoop.jar
+*.jar
+lib/sdsuLibJKD12.jar
+contrib/piggybank/java/piggybank.jar
+mapr-build.properties
 *.iml
 *.ipr
 *.iws
