@@ -750,6 +750,7 @@
             <fileset dir="${ivy.lib.dir}" includes="accumulo-*.jar" excludes="accumulo-minicluster*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="json-simple-*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="kryo-*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="commons-io*.jar"/>
         </copy>
     </target>
 
