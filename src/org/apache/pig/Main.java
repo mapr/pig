@@ -533,7 +533,9 @@ public class Main {
                 ConsoleReader reader = new ConsoleReader(Utils.getCompositeStream(System.in, properties), new OutputStreamWriter(System.out));
                 reader.setDefaultPrompt("grunt> ");
                 final String HISTORYFILE = ".pig_history";
-                String historyFile = System.getProperty("user.home") + File.separator  + HISTORYFILE;
+                File f = new File(System.getProperty("user.home"));
+                String historyFile = f.exists() && f.isDirectory() ? System.getProperty("user.home") + File.separator  + HISTORYFILE
+                        : System.getProperty("user.dir") + File.separator  + HISTORYFILE;
                 reader.setHistory(new History(new File(historyFile)));
                 ConsoleReaderInputStream inputStream = new ConsoleReaderInputStream(reader);
                 grunt = new Grunt(new BufferedReader(new InputStreamReader(inputStream)), pigContext);
@@ -996,11 +998,12 @@ public class Main {
             }//end else part of logFile.isDirectory()
         }//end if logFileName != null
 
-        //file name is null or its in the current working directory
-        //revert to the current working directory
-        String currDir = System.getProperty("user.dir");
-        logFile = new File(currDir);
-        logFileName = currDir + File.separator + (logFileName == null? defaultLogFileName : logFileName);
+        //write to the home user dir if exist
+        //if not to the current working directory
+        File f = new File(System.getProperty("user.home"));
+        String logDir = (f.exists() && f.isDirectory() ? System.getProperty("user.home") : System.getProperty("user.dir"));
+        logFile = new File(logDir);
+        logFileName = logDir + File.separator + (logFileName == null? defaultLogFileName : logFileName);
         if(logFile.canWrite()) {
             return logFileName;
         }
