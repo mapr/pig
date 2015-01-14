@@ -534,7 +534,7 @@ public class Main {
                 reader.setDefaultPrompt("grunt> ");
                 final String HISTORYFILE = ".pig_history";
                 File f = new File(System.getProperty("user.home"));
-                String historyFile = f.exists() && f.isDirectory() ? System.getProperty("user.home") + File.separator  + HISTORYFILE
+                String historyFile = (f.exists() && f.isDirectory()) ? System.getProperty("user.home") + File.separator  + HISTORYFILE
                         : System.getProperty("user.dir") + File.separator  + HISTORYFILE;
                 reader.setHistory(new History(new File(historyFile)));
                 ConsoleReaderInputStream inputStream = new ConsoleReaderInputStream(reader);
@@ -1001,7 +1001,7 @@ public class Main {
         //write to the home user dir if exist
         //if not to the current working directory
         File f = new File(System.getProperty("user.home"));
-        String logDir = (f.exists() && f.isDirectory() ? System.getProperty("user.home") : System.getProperty("user.dir"));
+        String logDir = ((f.exists() && f.isDirectory()) ? System.getProperty("user.home") : System.getProperty("user.dir"));
         logFile = new File(logDir);
         logFileName = logDir + File.separator + (logFileName == null? defaultLogFileName : logFileName);
         if(logFile.canWrite()) {
