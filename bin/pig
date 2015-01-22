@@ -48,7 +48,25 @@
 #                      when using HBaseStorage. Defaults to ${HBASE_HOME}/conf
 
 BASEMAPR=${MAPR_HOME:-/opt/mapr}
-HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'`
+
+if [ -f /opt/mapr/conf/hadoop_version ]; then
+    hadoop_mode=`cat /opt/mapr/conf/hadoop_version | grep default_mode | cut -d '=' -f 2`
+    if [ "$hadoop_mode" = "yarn" ]; then
+	    version=`cat /opt/mapr/conf/hadoop_version | grep yarn_version | cut -d '=' -f 2`
+	    HADOOP_VERSION="hadoop-$version"
+    elif [ "$hadoop_mode" = "classic" ]; then
+	    version=`cat /opt/mapr/conf/hadoop_version | grep classic_version | cut -d '=' -f 2`
+	    HADOOP_VERSION="hadoop-$version"
+    else
+	echo 'Unknown hadoop version'
+    fi
+else
+    version_cmd="hadoop version"
+    res=`eval $CMD`
+    HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print$5}'`
+    version=`echo ${HADOOP_VERSION} | cut -d'-' -f 2`
+fi
+
 if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
  export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
 else
@@ -333,11 +351,10 @@ fi
 
 HADOOP_CORE_JAR=`echo ${HADOOP_HOME}/hadoop-core*.jar`
 
-if [ -z "$HADOOP_CORE_JAR" ]; then
-    HADOOP_VERSION=2
-else
-    HADOOP_VERSION=1
-fi
+MAPR_VERSION=`cat /opt/mapr/MapRBuildVersion | awk -F "." '{print $1"."$2}'`
+
+#if mapr-core release >=4.0 (yarn) returns 2, else returns boolean 1
+HADOOP_VERSION=`echo "$MAPR_VERSION >= 4.0" | bc | awk '{printf "%s" , $0}'| awk '{sum=$0+1} END {print sum}'`
 
 # if using HBase, likely want to include HBase jars and config
 if which hbase >/dev/null; then
