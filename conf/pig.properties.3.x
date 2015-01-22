@@ -117,7 +117,7 @@
 #
 #     pig -Dpig.additional.jars=hdfs://nn.mydomain.com:9020/myjars/my.jar
 #
-pig.additional.jars=/opt/mapr/pig/pig-0.13/lib/commons-io-2.3.jar
+pig.additional.jars=/opt/mapr/pig/pig-0.14/lib/commons-io-2.3.jar
 # pig.additional.jars=/usr/local/share/pig/pig/contrib/piggybank/java/piggybank.jar:/usr/local/share/pig/datafu/datafu-pig/build/libs/datafu-pig-1.2.1.jar
 
 # Specify potential packages to which a UDF or a group of UDFs belong,
