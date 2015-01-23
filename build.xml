@@ -557,11 +557,11 @@
         </copy>
     </target>
 
-    <target name="compile-test" depends="jar, ivy-test">
+    <target name="compile-test" depends="compile, ivy-test">
         <echo>*** Building Test Sources ***</echo>
         <echo>*** To compile with all warnings enabled, supply -Dall.warnings=1 on command line ***</echo>
         <echo>*** Else, you will only be warned about deprecations ***</echo>
-        <compileSources sources="${test.src.dir};${src.shims.test.dir}${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/datagen;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/mapreduce;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/udf"
+        <compileSources sources="${test.src.dir};${src.shims.test.dir};${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/datagen;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/mapreduce;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/udf"
             excludes="**/PigTestLoader.java **/resources/** perf/** ${src.exclude.dir}"
             dist="${test.build.classes}" cp="test.classpath" warnings="${javac.args.warnings}" />
         <copy file="${basedir}/test/hbase-site.xml" tofile="${test.build.classes}/hbase-site.xml"/>
@@ -695,6 +695,11 @@
     </target>
 
     <!-- ================================================================== -->
+    <!-- Facede to build pig-core.jar                                       -->
+    <!-- ================================================================== -->
+    <target name="jar-all" depends="jar,pigperf,piggybank" description="Create pig, pigperf jar" />
+    
+    <!-- ================================================================== -->
     <!-- Facede to build pig.jar for both Hadoop 1 and Hadoop 2             -->
     <!-- ================================================================== -->
     <target name="jar-h12" description="Create pig for both Hadoop 1 and Hadoop 2">
@@ -723,6 +728,7 @@
     </target>
 
     <target name="copyCommonDependencies">
+        <copy file="${basedir}/test/perf/pigmix/lib/sdsuLibJKD12.jar" tofile="${ivy.lib.dir}/sdsuLibJKD12.jar"/>
         <mkdir dir="${lib.dir}" />
         <copy todir="${lib.dir}">
             <fileset dir="${ivy.lib.dir}" includes="antlr-runtime-*.jar"/>
@@ -753,6 +759,7 @@
             <fileset dir="${ivy.lib.dir}" includes="commons-io*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="parquet*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="sdsuLibJKD12.jar"/>
         </copy>
     </target>
 
