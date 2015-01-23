@@ -19,7 +19,23 @@ set -x
 
 java=${JAVA_HOME:='/usr'}/bin/java;
 BASEMAPR=${MAPR_HOME:-/opt/mapr}
-HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print $5}'` 
+if [ -f /opt/mapr/conf/hadoop_version ]; then
+    hadoop_mode=`cat /opt/mapr/conf/hadoop_version | grep default_mode | cut -d '=' -f 2`
+    if [ "$hadoop_mode" = "yarn" ]; then
+	    version=`cat /opt/mapr/conf/hadoop_version | grep yarn_version | cut -d '=' -f 2`
+	    HADOOP_VERSION="hadoop-$version"
+    elif [ "$hadoop_mode" = "classic" ]; then
+	    version=`cat /opt/mapr/conf/hadoop_version | grep classic_version | cut -d '=' -f 2`
+	    HADOOP_VERSION="hadoop-$version"
+    else
+	echo 'Unknown hadoop version'
+    fi
+else
+    version_cmd="hadoop version"
+    res=`eval $CMD`
+    HADOOP_VERSION=`readlink \`which hadoop\` | awk -F "/" '{print$5}'`
+    version=`echo ${HADOOP_VERSION} | cut -d'-' -f 2`
+fi
 if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
     export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
 else
@@ -40,11 +56,11 @@ then
 fi
 if [ -z $PIG_VERSION ]
 then
-  PIG_VERSION="0.13.1"
+  PIG_VERSION="0.14.0"
 fi
 if [ -z "$pigjar" ]
 then
-    pigjar=`echo $PIG_HOME/pig-withouthadoop.jar`
+    pigjar=`echo $PIG_HOME/pig-core-h1.jar`
 fi
 
 testjar=$PIG_HOME/pigperf.jar
