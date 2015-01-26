@@ -908,7 +908,9 @@
                 <include name="org/apache/pig/test/utils/datagen/*"/>
                 <include name="org/apache/pig/test/udf/storefunc/*"/>
             </fileset>
-            <zipfileset src="test/perf/pigmix/lib/sdsuLibJKD12.jar" />
+            <zipfileset src="test/perf/pigmix/lib/sdsuLibJKD12.jar" includes="sdsu/**"/>
+            <zipfileset src="${ivy.lib.dir}/antlr-runtime-3.4.jar" includes="org/**"/>
+            <zipfileset src="${ivy.lib.dir}/joda-time-2.1.jar" includes="org/**"/>
         </jar>
     </target>
 

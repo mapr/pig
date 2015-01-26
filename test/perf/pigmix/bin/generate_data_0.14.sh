@@ -57,7 +57,7 @@ if [ -z "$pigjar" ]
 then
 pigjar=`echo $PIG_HOME/pig-core-h2.jar`
 fi
-testjar=$PIG_HOME/pigperf.jar
+testjar=$PIG_HOME/pigperf-h2.jar
 PIG_DATA="/pigmix"
 hdfsroot="/pigmix"
 PIG_RESULTS="/pigmixresults"
@@ -112,7 +112,7 @@ $page_links_field
 protousers=$hdfsroot/protousers
 echo "Skimming users"
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-register $PIG_HOME/pigperf.jar;
+register $PIG_HOME/pigperf-h2.jar;
 fs -rmr '$protousers';
 A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
 as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
@@ -141,7 +141,7 @@ fi
 protopowerusers=$hdfsroot/proto_power_users
 echo "Skimming power users"
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-register $PIG_HOME/pigperf.jar;
+register $PIG_HOME/pigperf-h2.jar;
 fs -rmr $protopowerusers;
 A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
 as (user, action, timespent, query_term, ip_addr, timestamp, estimated_revenue, page_info, page_links);
@@ -218,7 +218,7 @@ $int_field $int_field $int_field $int_field $int_field $int_field $int_field $in
 $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field $int_field
 widegroupbydata=$hdfsroot/widegroupbydata
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-register $PIG_HOME/pigperf.jar;
+register $PIG_HOME/pigperf-h2.jar;
 fs -rmr ${pages}_sorted;
 fs -rmr ${users}_sorted;
 fs -rmr ${powerusers}_samples;

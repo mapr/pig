@@ -137,7 +137,7 @@ $HADOOP_BIN jar $testjar $mainclass $hadoop_ops \
 protousers=$hdfsroot/protousers
 echo "Skimming users"
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-register $PIG_HOME/pigperf.jar;
+register $PIG_HOME/pigperf-h1.jar;
 register $PIG_HOME/lib/commons-io-2.3.jar;
 fs -rmr '$protousers';
 A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
@@ -175,7 +175,7 @@ protopowerusers=$hdfsroot/proto_power_users
 echo "Skimming power users"
 
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-register $PIG_HOME/pigperf.jar;
+register $PIG_HOME/pigperf-h1.jar;
 register $PIG_HOME/lib/commons-io-2.3.jar;
 fs -rmr $protopowerusers;
 A = load '$pages' using org.apache.pig.test.pigmix.udf.PigPerformanceLoader()
@@ -261,7 +261,7 @@ $HADOOP_BIN jar $testjar $mainclass $hadoop_ops \
 widegroupbydata=$hdfsroot/widegroupbydata
 
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-register $PIG_HOME/pigperf.jar;
+register $PIG_HOME/pigperf-h1.jar;
 register $PIG_HOME/lib/commons-io-2.3.jar;
 fs -rmr ${pages}_sorted;
 fs -rmr ${users}_sorted;
