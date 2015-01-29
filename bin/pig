@@ -67,10 +67,13 @@ else
     version=`echo ${HADOOP_VERSION} | cut -d'-' -f 2`
 fi
 
+HIVE_SHIMS_VER=20S
+
 if [ $HADOOP_VERSION == hadoop-0.20.2 ]; then
  export HADOOP_HOME=${BASEMAPR}/hadoop/hadoop-0.20.2/
 else
  export HADOOP_HOME=${BASEMAPR}/hadoop/${HADOOP_VERSION}/
+ HIVE_SHIMS_VER=23
 fi
 env=$BASEMAPR/conf/env.sh
 [ -f $env ] && . $env
@@ -171,6 +174,16 @@ if [ "$PIG_HEAPSIZE" != "" ]; then
     JAVA_HEAP_MAX="-Xmx""$PIG_HEAPSIZE""m"
 fi
 
+# Find hive home
+if [ "$HIVE_HOME" == "" ]; then
+   if [ -f "/usr/bin/hive" ]; then
+     HIVE_HOME=`find_home "/usr/bin/hive"`
+  else
+    echo "Please initialize HIVE_HOME"
+    exit -1
+  fi
+fi
+
 # CLASSPATH initially contains $PIG_CONF_DIR
 CLASSPATH=${CLASSPATH}:"${PIG_CONF_DIR}"
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
@@ -187,14 +200,6 @@ if [ "$includeHCatalog" == "true" ]; then
   jdordbms=datanucleus-rdbms*.jar
   hivejdbc=hive-jdbc*.jar
   hbaseHiveJar=hive-hbase-handler-*.jar
-  if [ "$HIVE_HOME" == "" ]; then
-     if [ -f "/usr/bin/hive" ]; then
-       HIVE_HOME=`find_home "/usr/bin/hive"`
-    else
-      echo "Please initialize HIVE_HOME"
-      exit -1
-    fi
-  fi
 
   hiveMetaStoreVersion=`ls $HIVE_HOME/lib/$hiveMetaStoreJar`
   thriftVersion=`ls $HIVE_HOME/lib/$thriftJar`
@@ -420,6 +425,16 @@ if [ "$includeHCatalog" == "true" ]; then
 fi
 
 export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
+
+# Adding mapr hive jars to classpath
+HIVE_SHIMS=`ls $HIVE_HOME/lib/hive-shims-0.${HIVE_SHIMS_VER}*jar`
+HIVE_SHIMS_COMMON=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
+HIVE_EXEC=`ls $HIVE_HOME/lib/hive-exec-0*jar`
+HIVE_SERDE=`ls $HIVE_HOME/lib/hive-serde-0*jar`
+HIVE_SHIMS_COMMON_SECURE=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
+
+CLASSPATH=${HIVE_SHIMS}:${HIVE_SHIMS_COMMON}:${HIVE_EXEC}:${HIVE_SERDE}:${HIVE_SHIMS_COMMON_SECURE}:${CLASSPATH}
+
 
 # run it
 if [ -n "$HADOOP_BIN" ]; then
