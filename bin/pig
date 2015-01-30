@@ -178,9 +178,6 @@ fi
 if [ "$HIVE_HOME" == "" ]; then
    if [ -f "/usr/bin/hive" ]; then
      HIVE_HOME=`find_home "/usr/bin/hive"`
-  else
-    echo "Please initialize HIVE_HOME"
-    exit -1
   fi
 fi
 
@@ -200,6 +197,11 @@ if [ "$includeHCatalog" == "true" ]; then
   jdordbms=datanucleus-rdbms*.jar
   hivejdbc=hive-jdbc*.jar
   hbaseHiveJar=hive-hbase-handler-*.jar
+
+  if [ "$HIVE_HOME" == "" ]; then
+    echo "Please initialize HIVE_HOME"
+    exit -1
+  fi
 
   hiveMetaStoreVersion=`ls $HIVE_HOME/lib/$hiveMetaStoreJar`
   thriftVersion=`ls $HIVE_HOME/lib/$thriftJar`
@@ -427,11 +429,13 @@ fi
 export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
 
 # Adding mapr hive jars to classpath
-HIVE_SHIMS=`ls $HIVE_HOME/lib/hive-shims-0.${HIVE_SHIMS_VER}*jar`
-HIVE_SHIMS_COMMON=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
-HIVE_EXEC=`ls $HIVE_HOME/lib/hive-exec-0*jar`
-HIVE_SERDE=`ls $HIVE_HOME/lib/hive-serde-0*jar`
-HIVE_SHIMS_COMMON_SECURE=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
+if [ ${HIVE_HOME} != "" ]; then
+  HIVE_SHIMS=`ls $HIVE_HOME/lib/hive-shims-0.${HIVE_SHIMS_VER}*jar`
+  HIVE_SHIMS_COMMON=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
+  HIVE_EXEC=`ls $HIVE_HOME/lib/hive-exec-0*jar`
+  HIVE_SERDE=`ls $HIVE_HOME/lib/hive-serde-0*jar`
+  HIVE_SHIMS_COMMON_SECURE=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
+fi
 
 CLASSPATH=${HIVE_SHIMS}:${HIVE_SHIMS_COMMON}:${HIVE_EXEC}:${HIVE_SERDE}:${HIVE_SHIMS_COMMON_SECURE}:${CLASSPATH}
 
