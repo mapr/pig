@@ -57,6 +57,7 @@ if [ -z "$pigjar" ]
 then
 pigjar=`echo $PIG_HOME/pig-core-h2.jar`
 fi
+pig_lib=$PIG_HOME/lib/*
 testjar=$PIG_HOME/pigperf-h2.jar
 PIG_DATA="/pigmix"
 hdfsroot="/pigmix"
@@ -73,7 +74,7 @@ maprcli volume create -name pigmixresults -path $PIG_RESULTS -replication 3
 maprcli volume create -name mapredpigmixresults -path $MAPRED_PIG_RESULTS -replication 3
 pig_conf=$PIG_HOME/conf/pig.properties
 classpath=`hadoop classpath`
-classpath=${classpath}:$pigjar:$pig_conf:$testjar
+classpath=${classpath}:$pigjar:$pig_conf:$pig_lib
 export HADOOP_CLASSPATH=$classpath
 # configure the number of mappers, if 0, job is run locally
 if [ -n "$MAPPERS" ]
@@ -240,14 +241,14 @@ user as user1, action as action1, timespent as timespent1, query_term as query_t
 user as user2, action as action2, timespent as timespent2, query_term as query_term2, ip_addr as ip_addr2, timestamp as timestamp2, estimated_revenue as estimated_revenue2, page_info as page_info2, page_links as page_links2;
 store B into '$widegroupbydata' using PigStorage('\u0001');
 EOF
-mkdir -p $powerusers
+mkdir -p $PIG_HOME/$powerusers
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-fs -copyToLocal ${powerusers}/part-* $powerusers;
+fs -copyToLocal ${powerusers}/part-* $PIG_HOME/$powerusers;
 EOF
-cat $powerusers/* > power_users
+cat $PIG_HOME/$powerusers/* > $PIG_HOME/power_users
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-fs -copyFromLocal power_users /pigmix/power_users;
+fs -copyFromLocal $PIG_HOME/$powerusers /pigmix/power_users;
 EOF
-rm -fr $powerusers
-rm power_users
+rm -fr $PIG_HOME/$powerusers
+rm $PIG_HOME/power_users
 set +x
