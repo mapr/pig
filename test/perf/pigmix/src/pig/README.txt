@@ -20,8 +20,15 @@ pig -p PIGMIX_JAR=$PIG_HOME/pigperf.jar -p PARALLEL=7 -p PIGMIX_OUTPUT=/pigmixre
 
 Script to runpigmix with example usage on MR1 (or yarn configured to run on MR1) -
 
-./runpigmix.pl /opt/mapr/pig/pig-0.14 /opt/mapr/pig/pig-0.14/bin/pig /opt/mapr/pig/pig-0.14/pigperf-h1.jar /opt/mapr/hadoop/hadoop-0.20.2 /opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
+cd $PIG_HOME/test/perf/pigmix/bin
+sudo -u mapr perl ./runpigmix.pl $PIG_HOME $PIG_HOME/bin/pig $PIG_HOME/pigperf-h1.jar /opt/mapr/hadoop/hadoop-0.20.2 /opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
 
-Script to runpigmix with example usage on MR2 (yarn)-
+Script to runpigmix with example usage on MR2 (yarn)- (MapR-4.0.1)
 
-./runpigmix.pl /opt/mapr/pig/pig-0.14 /opt/mapr/pig/pig-0.14/bin/pig /opt/mapr/pig/pig-0.14/pigperf-h2.jar /opt/mapr/hadoop/hadoop-2.4.1 /opt/mapr/hadoop/hadoop-2.4.1/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
+cd $PIG_HOME/test/perf/pigmix/bin
+sudo -u mapr perl ./runpigmix.pl $PIG_HOME $PIG_HOME/bin/pig $PIG_HOME/pigperf-h2.jar /opt/mapr/hadoop/hadoop-2.4.1 /opt/mapr/hadoop/hadoop-2.4.1/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
+
+Script to runpigmix with example usage on MR2 (yarn)- (MapR-4.0.2)
+
+cd $PIG_HOME/test/perf/pigmix/bin
+sudo -u mapr perl ./runpigmix.pl $PIG_HOME $PIG_HOME/bin/pig $PIG_HOME/pigperf-h2.jar /opt/mapr/hadoop/hadoop-2.5.1/ /opt/mapr/hadoop/hadoop-2.5.1/bin/hadoop $PIG_HOME/test/perf/pigmix/src/pig /pigmix /pigmixresults
