@@ -63,7 +63,7 @@ then
     pigjar=`echo $PIG_HOME/pig-core-h1.jar`
 fi
 
-testjar=$PIG_HOME/pigperf.jar
+testjar=$PIG_HOME/pigperf-h1.jar
 PIG_DATA="/pigmix"
 hdfsroot="/pigmix"
 PIG_RESULTS="/pigmixresults"
@@ -291,19 +291,19 @@ user as user2, action as action2, timespent as timespent2, query_term as query_t
 store B into '$widegroupbydata' using PigStorage('\u0001');
 EOF
 
-mkdir -p $powerusers
+mkdir -p $PIG_HOME/$powerusers
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-fs -copyToLocal ${powerusers}/part-* $powerusers;
+fs -copyToLocal ${powerusers}/part-* $PIG_HOME/$powerusers;
 EOF
 
-cat $powerusers/* > power_users
+cat $powerusers/* > $PIG_HOME/power_users
 
 java $hadoop_ops -cp $classpath org.apache.pig.Main << EOF
-fs -copyFromLocal power_users /pigmix/power_users;
+fs -copyFromLocal $PIG_HOME/power_users /pigmix/power_users;
 EOF
 
-rm -fr $powerusers
-rm power_users
+rm -fr $PIG_HOME/$powerusers
+rm $PIG_HOME/power_users
 
 set +x
 
