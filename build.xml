@@ -235,7 +235,6 @@
     <property name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
     <property name="src.shims.test.dir" value="${basedir}/shims/test/hadoop${hadoopversion}" />
 
-    <property name="hadoop.jar" value="hadoop-core-${hadoop-core.version}.jar" />
     <property name="asfrepo" value="https://repository.apache.org"/>
     <property name="asfsnapshotrepo" value="${asfrepo}/content/repositories/snapshots"/>
     <property name="mvnrepo" value="http://repo2.maven.org/maven2"/>
