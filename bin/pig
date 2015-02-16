@@ -429,7 +429,7 @@ fi
 export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
 
 # Adding mapr hive jars to classpath
-if [ ${HIVE_HOME} != "" ]; then
+if [ "${HIVE_HOME}" != "" ]; then
   HIVE_SHIMS=`ls $HIVE_HOME/lib/hive-shims-0.${HIVE_SHIMS_VER}*jar`
   HIVE_SHIMS_COMMON=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
   HIVE_EXEC=`ls $HIVE_HOME/lib/hive-exec-0*jar`
