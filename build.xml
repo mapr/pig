@@ -1399,12 +1399,6 @@
               <attach file="${output.jarfile.sources}" classifier="sources" />
               <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
       </artifact:deploy>
-      <artifact:pom file="${pig-withouthadoop.pom}" id="pig-withouthadoop"/>
-      <artifact:deploy file="${output.jarfile.withouthadoop}">
-              <remoteRepository id="${staging_repo_id}" url="${env.MAPR_MAVEN_REPO}"/>
-              <pom refid="pig-withouthadoop"/>
-              <attach file="${output.jarfile.withouthadoop-h2}" type="jar" classifier="h2"/>
-      </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
               <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
