@@ -45,6 +45,7 @@
   <settings defaultResolver="${resolvers}"/>
   <resolvers>
     <ibiblio name="mapr-releases" root="${repository.mapr.com}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
+    <ibiblio name="mapr-central" root="${package.mapr.com}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="maven2" root="${repo.maven.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="jboss-maven2" root="${repo.jboss.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="apache-snapshots" root="${repo.apache.snapshots}" pattern="${snapshot.pattern}"
