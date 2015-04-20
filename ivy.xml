@@ -406,6 +406,9 @@
     <dependency org="org.apache.hive" name="hive-exec" rev="${hive.version}" conf="compile->master" changing="true">
       <artifact name="hive-exec" m:classifier="core" />
     </dependency>
+    <dependency org="org.apache.hive" name="hive-metastore" rev="${hive.version}" conf="compile->master" changing="true">
+      <artifact name="hive-metastore" />
+    </dependency>
     <dependency org="org.apache.hive" name="hive-serde" rev="${hive.version}" changing="true"
       conf="compile->master" />
     <dependency org="org.apache.hive" name="hive-common" rev="${hive.version}" changing="true"
