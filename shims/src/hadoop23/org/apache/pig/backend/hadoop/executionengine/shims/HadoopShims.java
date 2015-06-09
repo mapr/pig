@@ -19,6 +19,7 @@ package org.apache.pig.backend.hadoop.executionengine.shims;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,6 @@ import org.apache.hadoop.mapred.TIPStatus;
 import org.apache.hadoop.mapred.TaskReport;
 import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
-import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.ContextFactory;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.JobID;
@@ -121,9 +121,21 @@ public class HadoopShims {
     }
 
     public static Counters getCounters(Job job) throws IOException {
+        Class clazz;
         try {
-            Cluster cluster = new Cluster(job.getJobConf());
+            clazz = Class.forName("org.apache.hadoop.mapreduce.Cluster");
+            } catch(ClassNotFoundException e) {
+             // we are most likely running on hadoop-2 in MRv1 mode
+             return new Counters(job.getJob().getCounters());
+             }
+
+        try {
+            //get constructor that takes a Configuration as argument
+            Constructor constructor = clazz.getConstructor(new Class[]{Configuration.class});
+            org.apache.hadoop.mapreduce.Cluster cluster = (org.apache.hadoop.mapreduce.Cluster)
+            constructor.newInstance(job.getJobConf());
             org.apache.hadoop.mapreduce.Job mrJob = cluster.getJob(job.getAssignedJobID());
+
             if (mrJob == null) { // In local mode, mrJob will be null
                 mrJob = job.getJob();
             }
@@ -226,18 +238,62 @@ public class HadoopShims {
             LOG.info("TaskReports are disabled for job: " + job.getAssignedJobID());
             return null;
         }
-        Cluster cluster = new Cluster(job.getJobConf());
         try {
+            Method m = null;
+            m = org.apache.hadoop.mapreduce.Job.class.getMethod("getTaskReports", TaskType.class);
+            } catch (NoSuchMethodException e) {
+            // we are most likely running on hadoop-2 in MRv1 mode
+            JobClient jobClient = job.getJobClient();
+            return (type == TaskType.MAP)
+                   ? new TaskReportIterator(jobClient.getMapTaskReports(job.getAssignedJobID()))
+                   : new TaskReportIterator(jobClient.getReduceTaskReports(job.getAssignedJobID()));
+        }
+        try {
+
+            Class clazz = Class.forName("org.apache.hadoop.mapreduce.Cluster");
+            //get constructor that takes a Configuration as argument
+            Constructor constructor = clazz.getConstructor(new Class[]{Configuration.class});
+            org.apache.hadoop.mapreduce.Cluster cluster = (org.apache.hadoop.mapreduce.Cluster)
+                 constructor.newInstance(job.getJobConf());
+
             org.apache.hadoop.mapreduce.Job mrJob = cluster.getJob(job.getAssignedJobID());
             if (mrJob == null) { // In local mode, mrJob will be null
                 mrJob = job.getJob();
             }
             org.apache.hadoop.mapreduce.TaskReport[] reports = mrJob.getTaskReports(type);
             return DowngradeHelper.downgradeTaskReports(reports);
-        } catch (InterruptedException ir) {
+        } catch (Exception ir) {
+            ir.printStackTrace();
             throw new IOException(ir);
         }
     }
+
+    private static class TaskReportIterator implements Iterator<TaskReport> {
+
+        private TaskReport[] reports;
+        private int curIndex = 0;
+
+        public TaskReportIterator(TaskReport[] reports) {
+            this.reports = reports;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return curIndex < this.reports.length ;
+        }
+
+        @Override
+        public TaskReport next() {
+            return reports[curIndex++];
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
 
     public static boolean isHadoopYARN() {
         return true;

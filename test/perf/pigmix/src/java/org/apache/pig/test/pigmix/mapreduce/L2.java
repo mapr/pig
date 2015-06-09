@@ -114,7 +114,7 @@ public class L2 {
         for (Map.Entry<Object,Object> entry : props.entrySet()) {
             lp.set((String)entry.getKey(), (String)entry.getValue());
         }
-        DistributedCache.addCacheFile(new URI(inputDir + "/power_users"), lp);
+        DistributedCache.addCacheFile(new URI(inputDir + "/power_users/power_users"), lp);
         FileInputFormat.addInputPath(lp, new Path(inputDir + "/page_views"));
         FileOutputFormat.setOutputPath(lp, new Path(outputDir + "/L2out"));
         lp.setNumReduceTasks(0);
