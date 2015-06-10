@@ -51,6 +51,8 @@ import org.apache.pig.backend.hadoop.executionengine.shims.HadoopShims;
 import org.apache.pig.impl.PigContext;
 import org.apache.tools.bzip2r.BZip2Constants;
 import org.joda.time.DateTime;
+import org.apache.hadoop.hive.ql.exec.AbstractMapJoinOperator;
+import org.apache.hadoop.hive.metastore.HiveMetaStore;
 
 import com.google.common.collect.Multimaps;
 
@@ -72,6 +74,23 @@ public class JarManager {
         private final Class pkgClass;
 
         DefaultPigPackages(Class pkgClass) {
+            this.pkgClass = pkgClass;
+        }
+
+        public Class getPkgClass() {
+            return pkgClass;
+        }
+    }
+
+    private static enum HivePackages {
+
+        HIVE_EXEC(AbstractMapJoinOperator.class),
+        HIVE_METASTORE(HiveMetaStore.class);
+
+
+        private final Class pkgClass;
+
+        HivePackages(Class pkgClass) {
             this.pkgClass = pkgClass;
         }
 
@@ -218,6 +237,18 @@ public class JarManager {
         }
         return defaultJars;
     }
+
+    public static List<String> getHiveJars() {
+        List<String> hiveJars = new ArrayList<String>();
+        for (HivePackages pkgToSend : HivePackages.values()) {
+            String jar = findContainingJar(pkgToSend.getPkgClass());
+            if (!hiveJars.contains(jar)) {
+                hiveJars.add(jar);
+            }
+        }
+        return hiveJars;
+    }
+
 
     /**
      * Find a jar that contains a class of the same name, if any. It will return a jar file, even if

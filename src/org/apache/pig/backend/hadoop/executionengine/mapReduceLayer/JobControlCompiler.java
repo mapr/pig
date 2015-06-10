@@ -598,6 +598,13 @@ public class JobControlCompiler{
                     // Setup the DistributedCache for this job
                     List<URL> allJars = new ArrayList<URL>();
 
+                    for (String hiveJar : JarManager.getHiveJars()) {
+                        URL jar = new File(hiveJar).toURI().toURL();
+                        if (!allJars.contains(jar)) {
+                            allJars.add(jar);
+                        }
+                    }
+
                     for (URL extraJar : pigContext.extraJars) {
                         if (!allJars.contains(extraJar)) {
                             allJars.add(extraJar);
