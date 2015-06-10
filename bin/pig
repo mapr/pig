@@ -191,6 +191,10 @@ if [ "$includeHCatalog" == "true" ]; then
   fbJar=libfb303-*.jar
   jdoECJar=jdo*-api-*.jar
   slfJar=slf4j-api-*.jar
+  jdo=datanucleus-api*.jar
+  jdocore=datanucleus-core*.jar
+  jdordbms=datanucleus-rdbms*.jar
+  hivejdbc=hive-jdbc*.jar
   hbaseHiveJar=hive-hbase-handler-*.jar
 
   if [ "$HIVE_HOME" == "" ]; then
@@ -204,6 +208,10 @@ if [ "$includeHCatalog" == "true" ]; then
   fbJarVersion=`ls $HIVE_HOME/lib/$fbJar`
   jdoECJarVersion=`ls $HIVE_HOME/lib/$jdoECJar`
   slfJarVersion=`ls $HIVE_HOME/lib/$slfJar`
+  jdo=`ls $HIVE_HOME/lib/$jdo`
+  jdocore=`ls $HIVE_HOME/lib/$jdocore`
+  hivejdbc=`ls $HIVE_HOME/lib/$hivejdbc`
+  jdordbms=`ls $HIVE_HOME/lib/$jdordbms`
   hbaseHiveVersion=`ls $HIVE_HOME/lib/$hbaseHiveJar`
 
   # hcatalog jar name for 0.4 and earlier
@@ -240,7 +248,7 @@ if [ "$includeHCatalog" == "true" ]; then
   pigHCatJarPath=`ls $HCAT_HOME/share/hcatalog/${pigHCatJar}`
 
   HCAT_CLASSPATHS=$hiveMetaStoreVersion:$thriftVersion:$hiveExecVersion:$fbJarVersion:$jdoECJarVersion:$slfJarVersion:$hbaseHiveVersion:$hcatJarPath:$hbaseHCatJarPath:$pigHCatJarPath
-  ADDITIONAL_CLASSPATHS=file://$hiveMetaStoreVersion,file://$thriftVersion,file://$hiveExecVersion,file://$fbJarVersion,file://$jdoECJarVersion,file://$slfJarVersion,file://$hbaseHiveVersion,file://$hcatJarPath,file://$hbaseHCatJarPath,file://$pigHCatJarPath
+  ADDITIONAL_CLASSPATHS=file://$hiveMetaStoreVersion,file://$thriftVersion,file://$hiveExecVersion,file://$fbJarVersion,file://$jdoECJarVersion,file://$slfJarVersion,file://$hbaseHiveVersion,file://$hcatJarPath,file://$hbaseHCatJarPath,file://$pigHCatJarPath,file://$jdo,file://$jdocore,file://$hivejdbc,file://$jdordbms
   if [ "$additionalJars" != "" ]; then
     ADDITIONAL_CLASSPATHS=$ADDITIONAL_CLASSPATHS,$additionalJars
   fi
