@@ -55,6 +55,15 @@ public class HadoopShims {
     private static Method getFileSystemClass;
 
     static public JobContext cloneJobContext(JobContext original) throws IOException, InterruptedException {
+        Class clazz = null;
+        try {
+            clazz = Class.forName("org.apache.hadoop.mapreduce.ContextFactory");
+        }
+        catch (ClassNotFoundException e) {
+            // we are most likely running on hadoop-2 in MRv1 mode
+            JobContext newContext = new JobContextImpl(original.getConfiguration(), original.getJobID());
+            return newContext;
+        }
         JobContext newContext = ContextFactory.cloneContext(original,
                 new JobConf(original.getConfiguration()));
         return newContext;
