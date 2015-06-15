@@ -271,18 +271,6 @@ public class HadoopShims {
                 mrJob = job.getJob();
             }
 
-            Method m = null;
-            try {
-                m = org.apache.hadoop.mapreduce.Job.class.getMethod("getTaskReports", TaskType.class);
-            }
-            catch (NoSuchMethodException e) {
-                // we are most likely running on hadoop-2 in MRv1 mode
-                JobClient jobClient = job.getJobClient();
-                return (type == TaskType.MAP)
-                        ? DowngradeHelper.downgradeTaskReports(jobClient.getMapTaskReports(job.getAssignedJobID()))
-                        : DowngradeHelper.downgradeTaskReports(jobClient.getReduceTaskReports(job.getAssignedJobID()));
-            }
-
             //if we reached here, then we're running in hadoop-2 in MRv2 mode
             org.apache.hadoop.mapreduce.TaskReport[] reports = mrJob.getTaskReports(type);
             return DowngradeHelper.downgradeTaskReports(reports);
