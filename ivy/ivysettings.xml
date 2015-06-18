@@ -30,6 +30,7 @@
           http://www.ibiblio.net/pub/packages/maven2
   -->
   <property name="repository.mapr.com" value="http://repository.mapr.com/maven/" override="true"/>
+  <property name="package.mapr.com" value="http://package.mapr.com/releases/v4.0.1/ubuntu/" override="true"/>
   <property name="repo.maven.org" value="${mvnrepo}" override="true"/>
   <property name="repo.jboss.org" value="http://repository.jboss.com/nexus/content/groups/public/" override="false"/>
   <property name="repo.apache.snapshots" value="http://repository.apache.org/content/groups/snapshots-group/" override="false"/>
@@ -45,6 +46,7 @@
   <settings defaultResolver="${resolvers}"/>
   <resolvers>
     <ibiblio name="mapr-releases" root="${repository.mapr.com}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
+    <ibiblio name="mapr-central" root="${package.mapr.com}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="maven2" root="${repo.maven.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="jboss-maven2" root="${repo.jboss.org}" pattern="${maven2.pattern.ext}" m2compatible="true"/>
     <ibiblio name="apache-snapshots" root="${repo.apache.snapshots}" pattern="${snapshot.pattern}"
