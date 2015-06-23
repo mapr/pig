@@ -70,11 +70,11 @@
     </condition>
 
     <!-- artifact jar file names -->
-    <property name="artifact.pig.jar" value="${final.name}.jar"/>
+    <property name="artifact.pig.jar" value="${final.name}-h1.jar"/>
     <property name="artifact.pig-h2.jar" value="${final.name}-h2.jar"/>
-    <property name="artifact.pig-withouthadoop.jar" value="${final.name}-withouthadoop.jar"/>
+    <property name="artifact.pig-withouthadoop.jar" value="${final.name}-withouthadoop-h1.jar"/>
     <property name="artifact.pig-withouthadoop-h2.jar" value="${final.name}-withouthadoop-h2.jar"/>
-    <property name="artifact.pig-withdependencies.jar" value="${final.name}-withdependencies.jar"/>
+    <property name="artifact.pig-withdependencies.jar" value="${final.name}-withdependencies-h1.jar"/>
     <property name="artifact.pig-withdependencies-h2.jar" value="${final.name}-withdependencies-h2.jar"/>
     <property name="artifact.pig-sources.jar" value="${final.name}-sources.jar"/>
     <property name="artifact.pig-javadoc.jar" value="${final.name}-javadoc.jar"/>
