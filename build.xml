@@ -708,6 +708,7 @@
 	<antcall target="include-meta" inheritRefs="true" inheritall="true"/>
         <copy todir="${basedir}/lib">
             <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="parquet*.jar"/>
         </copy>	
     </target>
 
