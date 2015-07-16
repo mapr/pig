@@ -18,6 +18,7 @@
 package org.apache.pig.backend.hadoop.executionengine.shims;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
@@ -128,9 +129,26 @@ public class HadoopShims {
         return fs.getDefaultBlockSize(path);
     }
 
-    public static Counters getCounters(Job job) throws IOException {
+    public static Counters getCounters(Job job) throws Exception {
+        Class clazz;
         try {
+            clazz = Class.forName("org.apache.hadoop.mapreduce.Cluster");
+        } catch(ClassNotFoundException e) {
+            // we are most likely running on hadoop-2 in MRv1 mode
             return new Counters(job.getJob().getCounters());
+        }
+
+        try {
+            //get constructor that takes a Configuration as argument
+            Constructor constructor = clazz.getConstructor(new Class[]{Configuration.class});
+            org.apache.hadoop.mapreduce.Cluster cluster = (org.apache.hadoop.mapreduce.Cluster)
+                    constructor.newInstance(job.getJobConf());
+            org.apache.hadoop.mapreduce.Job mrJob = cluster.getJob(job.getAssignedJobID());
+
+            if (mrJob == null) { // In local mode, mrJob will be null
+                mrJob = job.getJob();
+            }
+            return new Counters(mrJob.getCounters());
         } catch (Exception ir) {
             throw new IOException(ir);
         }
@@ -237,12 +255,22 @@ public class HadoopShims {
                     : jobClient.getReduceTaskReports(job.getAssignedJobID());
         }
 
-        //if we reached here, then we're running in hadoop-2 in MRv2 mode
-        org.apache.hadoop.mapreduce.Job mrJob = job.getJob();
         try {
+            Class clazz = Class.forName("org.apache.hadoop.mapreduce.Cluster");
+            //get constructor that takes a Configuration as argument
+            Constructor constructor = clazz.getConstructor(new Class[]{Configuration.class});
+            org.apache.hadoop.mapreduce.Cluster cluster = (org.apache.hadoop.mapreduce.Cluster)
+                    constructor.newInstance(job.getJobConf());
+            org.apache.hadoop.mapreduce.Job mrJob = cluster.getJob(job.getAssignedJobID());
+
+            if (mrJob == null) { // In local mode, mrJob will be null
+                mrJob = job.getJob();
+            }
+            //if we reached here, then we're running in hadoop-2 in MRv2 mode
             org.apache.hadoop.mapreduce.TaskReport[] reports = mrJob.getTaskReports(type);
             return DowngradeHelper.downgradeTaskReports(reports);
-        } catch (InterruptedException ir) {
+        } catch (Exception ir) {
+            ir.printStackTrace();
             throw new IOException(ir);
         }
     }

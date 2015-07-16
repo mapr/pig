@@ -283,7 +283,7 @@ public final class MRJobStats extends JobStats {
     void addCounters(Job job) {
         try {
             counters = HadoopShims.getCounters(job);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Unable to get job counters", e);
         }
         if (counters != null) {
