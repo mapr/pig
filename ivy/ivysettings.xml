@@ -29,6 +29,7 @@
           http://ibiblio.lsu.edu/main/pub/packages/maven2
           http://www.ibiblio.net/pub/packages/maven2
   -->
+  <property name="package.mapr.com" value="http://package.mapr.com/releases/v4.0.1/ubuntu/" override="true"/>
   <property name="repository.mapr.com" value="http://repository.mapr.com/maven/" override="true"/>
   <property name="repo.maven.org" value="${mvnrepo}" override="true"/>
   <property name="repo.jboss.org" value="http://repository.jboss.com/nexus/content/groups/public/" override="false"/>
