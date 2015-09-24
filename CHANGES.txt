@@ -18,6 +18,8 @@
 
 Pig Change Log
 
+PIG-4683: Nested order is broken after PIG-3591 in some cases
+
 Release 0.14.1 - Unreleased
 
 INCOMPATIBLE CHANGES
