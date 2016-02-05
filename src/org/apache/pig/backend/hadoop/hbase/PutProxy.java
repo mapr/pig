@@ -16,7 +16,7 @@ public class PutProxy {
 
   static {
     try {
-      add_Method_ = Put.class.getMethod("org.apache.hadoop.hbase.client.Put", Put.class);
+      add_Method_ = Put.class.getMethod("add", byte[].class, byte[].class, long.class, byte[].class);
     } catch (NoSuchMethodException | SecurityException e) {
       add_InitException_ = new RuntimeException("cannot find org.apache.hadoop.hbase.client.Put.add(byte [], byte [], long, byte [])", e);
       add_InitError_ = true;
