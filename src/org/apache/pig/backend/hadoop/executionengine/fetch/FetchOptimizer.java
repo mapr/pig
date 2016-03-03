@@ -38,6 +38,7 @@ import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOpe
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.PODistinct;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POFRJoin;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POGlobalRearrange;
+import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLimit;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLocalRearrange;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POMergeCogroup;
@@ -95,8 +96,12 @@ public class FetchOptimizer {
         if (isEligible(pc, pp)) {
             FetchablePlanVisitor fpv = new FetchablePlanVisitor(pc, pp);
             fpv.visit();
-            boolean isFetchable = fpv.isPlanFetchable();
-            //initialization
+            // Plan is fetchable only if FetchablePlanVisitor returns true AND
+            // limit is present in the plan. Limit is a safeguard. If the input
+            // is large, and there is no limit, fetch optimizer will fetch the
+            // entire input to the client. That can be dangerous.
+            boolean isFetchable = fpv.isPlanFetchable() &&
+                    PlanHelper.containsPhysicalOperator(pp, POLimit.class);
             if (isFetchable)
                 init(pp);
             return isFetchable;
