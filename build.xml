@@ -767,6 +767,9 @@
             <fileset dir="${ivy.lib.dir}" includes="parser-core-${basjes-httpdlog-pigloader.version}.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="ivy-*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="sdsuLibJKD12.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="commons-io*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="parquet*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
         </copy>
     </target>
 
