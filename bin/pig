@@ -442,11 +442,12 @@ export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
 
 # Adding mapr hive jars to classpath
 if [ "${HIVE_HOME}" != "" ]; then
-  HIVE_SHIMS=`ls $HIVE_HOME/lib/hive-shims-0.${HIVE_SHIMS_VER}*jar`
-  HIVE_SHIMS_COMMON=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
-  HIVE_EXEC=`ls $HIVE_HOME/lib/hive-exec-0*jar`
-  HIVE_SERDE=`ls $HIVE_HOME/lib/hive-serde-0*jar`
-  HIVE_SHIMS_COMMON_SECURE=`ls $HIVE_HOME/lib/hive-shims-common-0*jar`
+  HIVE_SHIMS=$(ls "${HIVE_HOME}"/lib/hive-shims-0."${HIVE_SHIMS_VER}"*jar)
+  HIVE_SHIMS_COMMON=$(ls "${HIVE_HOME}"/lib/hive-shims-common-"${HIVE_VERSION}"*jar)
+  HIVE_EXEC=$(ls "${HIVE_HOME}"/lib/hive-exec-"${HIVE_VERSION}"*jar)
+  HIVE_SERDE=$(ls "${HIVE_HOME}"/lib/hive-serde-"${HIVE_VERSION}"*jar)
+  HIVE_SHIMS_COMMON_SECURE=$(ls "${HIVE_HOME}"/lib/hive-shims-common-"${HIVE_VERSION}"*jar)
+  HIVE_METASTORE=$(ls "${HIVE_HOME}"/lib/hive-metastore-"${HIVE_VERSION}"*jar)
 fi
 
 CLASSPATH=${HIVE_METASTORE}:${HIVE_SHIMS}:${HIVE_SHIMS_COMMON}:${HIVE_EXEC}:${HIVE_SERDE}:${HIVE_SHIMS_COMMON_SECURE}:${CLASSPATH}
