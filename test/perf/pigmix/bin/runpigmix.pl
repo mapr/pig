@@ -2,7 +2,7 @@
 
 if(scalar(@ARGV) < 6)
 {
-    print STDERR "Usage: $0 <pig_home> <pig_bin> <pigmix_jar> <hadoop_home> <hadoop_bin> <pig mix scripts dir> [hdfs_root] [pigmix_output] [parallel] [numruns] [runmapreduce] [cleanup_after_test]\n";
+    print STDERR "Usage: $0 <pig_home> <pig_bin> <pigmix_jar> <hadoop_home> <hadoop_bin> <pig mix scripts dir> <hdfs_root> <pigmix_output> [parallel] [numruns] [runmapreduce] \n";
     exit(-1);
 }
 my $pighome = shift;
@@ -17,7 +17,6 @@ my $parallel = shift;
 my $runs = shift;
 my $runmapreduce = shift;
 my $cleanup_after_test = shift;
-my $pigjar = "$pighome/pig-withouthadoop.jar";
 if(!defined($hdfsroot)) {
     $hdfsroot = '/user/pig/tests/data/pigmix';
 }
@@ -43,6 +42,8 @@ $ENV{'HADOOP_CLIENT_OPTS'}="-Xmx1024m";
 my $cmd;
 my $total_pig_times = 0;
 my $total_mr_times = 0;
+$hadoopbin=`which hadoop`;
+chomp($hadoopbin);
 
 print STDERR "Removing output dir $pigmixoutput \n";
 $cmd = "$hadoopbin fs -rmr $pigmixoutput";

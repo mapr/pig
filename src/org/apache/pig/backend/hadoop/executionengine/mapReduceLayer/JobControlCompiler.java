@@ -322,7 +322,9 @@ public class JobControlCompiler{
                 }
                 Job job = getJob(plan, mro, conf, pigContext);
                 jobMroMap.put(job, mro);
-                jobCtrl.addJob(job);
+                ArrayList<Job> a = new ArrayList<Job>();
+                a.add(job);
+                jobCtrl.addJobs(a);
             }
         } catch (JobCreationException jce) {
             throw jce;

@@ -22,6 +22,7 @@
     <!-- to contribute (without having to type -D or edit this file -->
     <property file="${user.home}/build.properties" />
     <property file="${basedir}/build.properties" />
+    <property environment="env"/>
 
     <!-- name and version properties -->
     <property name="name" value="pig" />
@@ -31,7 +32,7 @@
     <property name="pigsmoke.pom" value="${basedir}/ivy/pigsmoke.pom" />
     <property name="pigunit.pom" value="${basedir}/ivy/pigunit.pom" />
     <property name="piggybank.pom" value="${basedir}/ivy/piggybank.pom" />
-    <property name="pig.version" value="0.16.0" />
+    <property name="pig.version" value="0.16.0-mapr" />
     <property name="pig.version.suffix" value="-SNAPSHOT" />
     <property name="version" value="${pig.version}${pig.version.suffix}" />
     <property name="final.name" value="${name}-${version}" />
@@ -234,7 +235,6 @@
     <property name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
     <property name="src.shims.test.dir" value="${basedir}/shims/test/hadoop${hadoopversion}" />
 
-    <property name="hadoop.jar" value="hadoop-core-${hadoop-core.version}.jar" />
     <property name="asfrepo" value="https://repository.apache.org"/>
     <property name="asfsnapshotrepo" value="${asfrepo}/content/repositories/snapshots"/>
     <property name="mvnrepo" value="http://repo2.maven.org/maven2"/>
@@ -427,7 +427,7 @@
     <!-- ================================================================== -->
     <!-- Clean.  Delete the build files, and their directories              -->
     <!-- ================================================================== -->
-    <target name="clean" description="Cleanup build artifacts">
+    <target name="clean" depends="clean-piggybank" description="Cleanup build artifacts">
         <delete dir="${src.gen.dir}" />
         <delete dir="${docs.dir}/build" />
         <delete file="${jdiff.xml.dir}\${name}_${version}.xml" />
@@ -552,11 +552,11 @@
         </copy>
     </target>
 
-    <target name="compile-test" depends="jar, ivy-test">
+    <target name="compile-test" depends="compile, ivy-test">
         <echo>*** Building Test Sources ***</echo>
         <echo>*** To compile with all warnings enabled, supply -Dall.warnings=1 on command line ***</echo>
         <echo>*** Else, you will only be warned about deprecations ***</echo>
-        <compileSources sources="${test.src.dir};${src.shims.test.dir}"
+        <compileSources sources="${test.src.dir};${src.shims.test.dir};${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/datagen;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/mapreduce;${basedir}/test/perf/pigmix/src/java/org/apache/pig/test/pigmix/udf"
             excludes="**/PigTestLoader.java **/resources/** perf/** ${src.exclude.dir}"
             dist="${test.build.classes}" cp="test.classpath" warnings="${javac.args.warnings}" />
         <copy file="${basedir}/test/hbase-site.xml" tofile="${test.build.classes}/hbase-site.xml"/>
@@ -664,9 +664,17 @@
        <jar duplicate="preserve" jarfile="${output.jarfile.sources}" basedir="${src.dir}/" excludes="docs/**, overview.html">
             <manifest>
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
+                     <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                     <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                     <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                     <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                     <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                     <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                     <attribute name="Implementation-Vendor" value="Apache" />
+                     <attribute name="Implementation-Title" value="Pig" />
+                     <attribute name="Implementation-Version" value="${version}" />
+                     <attribute name="Build-TimeStamp" value="${timestamp}" />
+                     <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
             <fileset dir="${src.lib.dir}/bzip2"/>
@@ -677,13 +685,26 @@
         <jar duplicate="preserve" jarfile="${output.jarfile.javadoc}" basedir="${build.javadoc}/">
             <manifest>
                 <section name="org/apache/pig">
+                    <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                    <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                    <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                    <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                    <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                    <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
                     <attribute name="Implementation-Vendor" value="Apache" />
                     <attribute name="Implementation-Title" value="Pig" />
                     <attribute name="Implementation-Version" value="${version}" />
+                    <attribute name="Build-TimeStamp" value="${timestamp}" />
+                    <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
         </jar>
     </target>
+
+    <!-- ================================================================== -->
+    <!-- Facede to build pig-core.jar                                       -->
+    <!-- ================================================================== -->
+    <target name="jar-all" depends="jar,pigperf,piggybank" description="Create pig, pigperf jar" />
 
     <!-- ================================================================== -->
     <!-- Facede to build pig.jar for both Hadoop 1 and Hadoop 2             -->
@@ -714,6 +735,7 @@
     </target>
 
     <target name="copyCommonDependencies">
+        <copy file="${basedir}/test/perf/pigmix/lib/sdsuLibJKD12.jar" tofile="${ivy.lib.dir}/sdsuLibJKD12.jar"/>
         <mkdir dir="${lib.dir}" />
         <copy todir="${lib.dir}">
             <fileset dir="${ivy.lib.dir}" includes="antlr-runtime-*.jar"/>
@@ -744,6 +766,7 @@
             <fileset dir="${ivy.lib.dir}" includes="httpdlog-*-${basjes-httpdlog-pigloader.version}.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="parser-core-${basjes-httpdlog-pigloader.version}.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="ivy-*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="sdsuLibJKD12.jar"/>
         </copy>
     </target>
 
@@ -795,6 +818,23 @@
            project.setProperty(attributes.get("name"), attributes.get("value"));
     </scriptdef>
 
+    <target name="mvn-jar" description="Create pig.jar for maven deploy for Hadoop2/23 and Hadoop1/20">
+        <propertyreset name="hadoopversion" value="23" />
+        <propertyreset name="isHadoop" value="true" />
+        <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
+        <antcall target="clean" inheritRefs="true" inheritall="true"/>
+        <antcall target="jar" inheritRefs="true" inheritall="true"/>
+        <!-- Move and rename pig jar for Hadoop2/23 to a different location before compiling for Hadoop1/20 -->
+        <move file="${output.jarfile.core}" tofile="${basedir}/${artifact.pig-h2.jar}"/>
+        <delete dir="${build.dir}" />
+        <propertyreset name="hadoopversion" value="20" />
+        <propertyreset name="isHadoop" value="" />
+        <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
+        <antcall target="jar" inheritRefs="true" inheritall="true"/>
+        <move file="${output.jarfile.core}" tofile="${output.jarfile.core-h1}"/>
+        <move file="${basedir}/${artifact.pig-h2.jar}" tofile="${output.jarfile.core-h2}"/>
+    </target>
+
     <macrodef name="propertycopy">
         <attribute name="name"/>
         <attribute name="from"/>
@@ -843,6 +883,12 @@
             <fileset dir="${basedir}" includes="test/data/pigunit/**/*"/>
             <manifest>
                 <section name="org/apache/pig/test/pigunit">
+                     <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                     <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                     <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                     <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                     <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                     <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
                      <attribute name="Implementation-Vendor" value="Apache" />
                      <attribute name="Implementation-Title" value="Pig" />
                      <attribute name="Implementation-Version" value="${version}" />
@@ -858,12 +904,29 @@
     <!-- ================================================================== -->
     <target name="pigperf" depends="compile-test" description="Create pigperf.jar">
         <jar jarfile="pigperf.jar">
+            <manifest>
+                <section name="org/apache/pig">
+                    <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                    <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                    <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                    <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                    <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                    <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                    <attribute name="Implementation-Vendor" value="Apache" />
+                    <attribute name="Implementation-Title" value="Pig" />
+                    <attribute name="Implementation-Version" value="${version}" />
+                    <attribute name="Build-TimeStamp" value="${timestamp}" />
+                    <attribute name="Svn-Revision" value="${svnString}" />
+                </section>
+            </manifest>
             <fileset dir="${test.build.dir}/classes">
                 <include name="org/apache/pig/test/pigmix/**"/>
                 <include name="org/apache/pig/test/utils/datagen/*"/>
                 <include name="org/apache/pig/test/udf/storefunc/*"/>
             </fileset>
-            <zipfileset src="test/perf/pigmix/lib/sdsuLibJKD12.jar" />
+            <zipfileset src="test/perf/pigmix/lib/sdsuLibJKD12.jar" includes="sdsu/**"/>
+            <zipfileset src="${ivy.lib.dir}/antlr-runtime-${antlr.version}.jar" includes="org/**"/>
+            <zipfileset src="${ivy.lib.dir}/joda-time-${joda-time.version}.jar" includes="org/**"/>
         </jar>
     </target>
 
@@ -1044,6 +1107,21 @@
     <target name="pigunit-jar" depends="compile-test, ivy-test" description="create the pigunit jar file">
         <echo> *** Creating pigunit.jar ***</echo>
         <jar destfile="${pigunit.jarfile}">
+            <manifest>
+                <section name="org/apache/pig">
+                     <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                     <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                     <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                     <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                     <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                     <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                     <attribute name="Implementation-Vendor" value="Apache" />
+                     <attribute name="Implementation-Title" value="Pig" />
+                     <attribute name="Implementation-Version" value="${version}" />
+                     <attribute name="Build-TimeStamp" value="${timestamp}" />
+                     <attribute name="Svn-Revision" value="${svnString}" />
+                </section>
+            </manifest>
             <fileset dir="${test.build.classes}">
                 <include name="**/org/apache/pig/pigunit/**"/>
                 <include name="**/org/apache/pig/test/Util.**"/>
@@ -1249,7 +1327,7 @@
           uri="urn:maven-artifact-ant"
           classpathref="mvn-ant-task.classpath"/>
     </target>
-    <target name="mvn-install" depends="mvn-taskdef,jar-h12, set-version, source-jar,
+    <target name="mvn-install" depends="mvn-taskdef,jar-h12, mvn-jar, set-version, source-jar,
       javadoc-jar, pigunit-jar, smoketests-jar, piggybank"
          description="To install pig to local filesystem's m2 cache">
          <artifact:pom file="${pig.pom}" id="pig"/>
@@ -1273,10 +1351,10 @@
          </artifact:install>
     </target>
 
-    <target name="mvn-build" depends="jar-h12, source-jar,
+    <target name="mvn-build" depends="mvn-jar, jar-h12, source-jar,
                                       javadoc-jar, smoketests-jar, pigunit-jar, piggybank"
          description="To build the pig jar artifacts to be deployed to apache maven repository">
-        <move file="${output.jarfile.backcompat-core-h1}" tofile="${output.jarfile.core}"/>
+        <move file="${output.jarfile.backcompat-core-h1}" tofile="${output.jarfile.core-h1}"/>
         <move file="${output.jarfile.backcompat-core-h2}" tofile="${output.jarfile.core-h2}"/>
     </target>
 
@@ -1294,7 +1372,7 @@
         <artifact:pom file="${pig.pom}" id="pig"/>
         <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
         <artifact:deploy file="${output.jarfile.core}">
-           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
+           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="pig"/>
            <attach file="${output.jarfile.core}.asc" type="jar.asc"/>
            <attach file="${pig.pom}.asc" type="pom.asc"/>
@@ -1307,21 +1385,21 @@
         </artifact:deploy>
         <artifact:pom file="${pigunit.pom}" id="pigunit"/>
         <artifact:deploy file="${pigunit.jarfile}">
-           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
+           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="pigunit"/>
            <attach file="${pigunit.jarfile}.asc" type="jar.asc"/>
            <attach file="${pigunit.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
         <artifact:deploy file="${smoke.tests.jarfile}">
-           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
+           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="pigsmoke"/>
            <attach file="${smoke.tests.jarfile}.asc" type="jar.asc"/>
            <attach file="${pigsmoke.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${piggybank.pom}" id="piggybank"/>
         <artifact:deploy file="${piggybank.jarfile}">
-           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
+           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
            <pom refid="piggybank"/>
            <attach file="${piggybank.jarfile}.asc" type="jar.asc"/>
            <attach file="${piggybank.pom}.asc" type="pom.asc"/>
@@ -1331,8 +1409,8 @@
     <target name="simpledeploy" unless="staging">
       <artifact:pom file="${pig.pom}" id="pig"/>
       <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
-      <artifact:deploy file="${output.jarfile.core}">
-              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
+      <artifact:deploy file="${output.jarfile.core-h1}">
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pig"/>
               <attach file="${output.jarfile.core-h2}" classifier="h2" />
               <attach file="${output.jarfile.sources}" classifier="sources" />
@@ -1340,17 +1418,17 @@
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
-              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pigunit"/>
       </artifact:deploy>
       <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
       <artifact:deploy file="${smoke.tests.jarfile}">
-              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="pigsmoke"/>
       </artifact:deploy>
       <artifact:pom file="${piggybank.pom}" id="piggybank"/>
       <artifact:deploy file="${piggybank.jarfile}">
-              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
+              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
               <pom refid="piggybank"/>
       </artifact:deploy>
     </target>
@@ -1777,5 +1855,51 @@
      </target>
 
      <import file="./build-site.xml" optional="true"/>
+
+    <target name="mapr-version">
+     <echo file="${build.dir}/mapr-version.sh">
+    #!/bin/bash
+    build_user=$(whoami)
+    build_date=$(date)
+    build_cwd=$(pwd)
+    build_hostname=$(hostname)
+
+    if git status &gt; /dev/null 2&gt;&amp;1 ; then
+     scm=git
+     build_revision=$(git log -1 --pretty=format:&quot;%H&quot;)
+     build_url=$(git config --get remote.origin.url)
+    elif hg st &gt; /dev/null 2&gt;&amp;1 ; then
+     scm=hg
+     build_revision=$(hg ident -n | sed 's/[^0-9]//g')
+     build_url=$(hg paths | grep 'default' | sed 's/.*default[^=]*=\s*//g')
+    elif svn info &gt; /dev/null 2&gt;&amp;1 ; then
+     scm=svn
+     build_revision=$(svn info | sed -n -e 's/Last Changed Rev: \(.*\)/\1/p')
+     build_url=$(svn info | sed -n -e 's/URL: \(.*\)/\1/p')
+    else
+     scm=file
+     build_revision=&quot;Unknown&quot;
+    fi
+
+    if [ &quot;${build_url}&quot; = &quot;&quot; ] ; then
+     build_url=&quot;${scm}://${build_hostname}${build_cwd}&quot;
+    fi
+
+    build_uname=$(uname -a)
+    #MapR Version Info
+    cat &gt;mapr-build.properties &lt;&lt;EOF
+    mapr.buildurl=$build_url
+    mapr.builddate=$build_date
+    mapr.builduser=$build_user
+    mapr.builduname=$build_uname
+    mapr.buildhost=$build_hostname
+    mapr.buildversion=$build_revision
+    EOF
+     </echo>
+     <exec executable="sh" failonerror="true">
+     <arg line="${build.dir}/mapr-version.sh"/>
+     </exec>
+
+     </target>
 
 </project>
