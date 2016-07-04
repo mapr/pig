@@ -426,23 +426,23 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
     private void initScan() throws IOException{
         scan = new Scan();
 
-        scan.setCacheBlocks(cacheBlocks_);
-        scan.setCaching(caching_);
+        ScanProxy.setCacheBlocks(scan, cacheBlocks_);
+        ScanProxy.setCaching(scan, caching_);
 
         // Set filters, if any.
         if (configuredOptions_.hasOption("gt")) {
             gt_ = Bytes.toBytesBinary(Utils.slashisize(configuredOptions_.getOptionValue("gt")));
             addRowFilter(CompareOp.GREATER, gt_);
-            scan.setStartRow(gt_);
+            ScanProxy.setStartRow(scan, gt_);
         }
         if (configuredOptions_.hasOption("lt")) {
             lt_ = Bytes.toBytesBinary(Utils.slashisize(configuredOptions_.getOptionValue("lt")));
             addRowFilter(CompareOp.LESS, lt_);
-            scan.setStopRow(lt_);
+            ScanProxy.setStopRow(scan, lt_);
         }
         if (configuredOptions_.hasOption("gte")) {
             gte_ = Bytes.toBytesBinary(Utils.slashisize(configuredOptions_.getOptionValue("gte")));
-            scan.setStartRow(gte_);
+            ScanProxy.setStartRow(scan, gte_);
         }
         if (configuredOptions_.hasOption("lte")) {
             lte_ = Bytes.toBytesBinary(Utils.slashisize(configuredOptions_.getOptionValue("lte")));
@@ -453,7 +453,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
             }
 
             if (lt != null) {
-                scan.setStopRow(increment(lte_));
+                ScanProxy.setStopRow(scan, increment(lte_));
             }
 
             // The WhileMatchFilter will short-circuit the scan after we no longer match. The
@@ -465,14 +465,14 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
             addFilter(new RowFilter(CompareOp.EQUAL, new RegexStringComparator(regex_)));
         }
         if (configuredOptions_.hasOption("minTimestamp") || configuredOptions_.hasOption("maxTimestamp")){
-            scan.setTimeRange(minTimestamp_, maxTimestamp_);
+            ScanProxy.setTimeRange(scan, minTimestamp_, maxTimestamp_);
         }
         if (configuredOptions_.hasOption("timestamp")){
-            scan.setTimeStamp(timestamp_);
+            ScanProxy.setTimeStamp(scan, timestamp_);
         }
         if (configuredOptions_.hasOption("maxResultsPerColumnFamily")){
             int maxResultsPerColumnFamily_ = Integer.valueOf(configuredOptions_.getOptionValue("maxResultsPerColumnFamily"));
-            scan.setMaxResultsPerColumnFamily(maxResultsPerColumnFamily_);
+            ScanProxy.setMaxResultsPerColumnFamily(scan, maxResultsPerColumnFamily_);
         }
 
         // if the group of columnInfos for this family doesn't contain a prefix, we don't need
@@ -516,7 +516,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
                                 + Bytes.toString(columnInfo.getColumnFamily()) + ":"
                                 + Bytes.toString(columnInfo.getColumnName()));
                     }
-                    scan.addColumn(columnInfo.getColumnFamily(), columnInfo.getColumnName());
+                    ScanProxy.addColumn(scan, columnInfo.getColumnFamily(), columnInfo.getColumnName());
                 }
             } else {
                 String family = entrySet.getKey();
@@ -524,7 +524,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
                     LOG.debug("Adding column family to scan via addFamily with cf:name = "
                             + family);
                 }
-                scan.addFamily(Bytes.toBytes(family));
+                ScanProxy.addFamily(scan, Bytes.toBytes(family));
             }
         }
     }
@@ -612,7 +612,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
             scanFilter = new FilterList(FilterList.Operator.MUST_PASS_ALL);
         }
         scanFilter.addFilter(filter);
-        scan.setFilter(scanFilter);
+        ScanProxy.setFilter(scan, scanFilter);
     }
 
    /**
@@ -1013,7 +1013,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
             }
 
             if (!columnInfo.isColumnMap()) {
-                put.add(columnInfo.getColumnFamily(), columnInfo.getColumnName(),
+                PutProxy.add(put, columnInfo.getColumnFamily(), columnInfo.getColumnName(),
                         ts, objToBytes(t.get(i), (fieldSchemas == null) ?
                         DataType.findType(t.get(i)) : fieldSchemas[i].getType()));
             } else {
@@ -1026,7 +1026,7 @@ public class HBaseStorage extends LoadFunc implements StoreFuncInterface, LoadPu
                         }
                         // TODO deal with the fact that maps can have types now. Currently we detect types at
                         // runtime in the case of storing to a cf, which is suboptimal.
-                        put.add(columnInfo.getColumnFamily(), Bytes.toBytes(colName.toString()), ts,
+                        PutProxy.add(put, columnInfo.getColumnFamily(), Bytes.toBytes(colName.toString()), ts,
                                 objToBytes(cfMap.get(colName), DataType.findType(cfMap.get(colName))));
                     }
                 }
