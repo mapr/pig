@@ -172,6 +172,16 @@ if [ "$PIG_HEAPSIZE" != "" ]; then
     JAVA_HEAP_MAX="-Xmx""$PIG_HEAPSIZE""m"
 fi
 
+# Find hive version
+find_hive_version(){
+HIVE_HOME=$1
+HIVE_VERSION=$(echo $HIVE_HOME| awk -F "/" '{print $5}' | cut -c 6-)
+echo $HIVE_VERSION
+}
+
+HIVE_VERSION=$(find_hive_version "$HIVE_HOME")
+IS_HIVE_VERSION_LESS_1=$(echo | awk -v cur="$HIVE_VERSION" -v min=1.0 '{if (cur < min) printf("1"); else printf ("0");}')
+
 # Find hive home
 if [ "$HIVE_HOME" == "" ]; then
    if [ -f "/usr/bin/hive" ]; then
@@ -240,7 +250,9 @@ if [ "$includeHCatalog" == "true" ]; then
     # in 0.5 and newer we need to add multiple jars to the class path
     hbaseHCatJarPath="$HCAT_HOME/share/hcatalog/storage-handlers/hbase/lib/*"
   else
-    hbaseHCatJarPath=`ls $HCAT_HOME/lib/$hbaseHCatJar`
+    if [ "IS_HIVE_VERSION_LESS_1" = 1 ]; then
+      hbaseHCatJarPath=`ls $HCAT_HOME/lib/$hbaseHCatJar`
+    fi
   fi
   
   # get the pig storage handler jar
