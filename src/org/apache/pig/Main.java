@@ -17,6 +17,8 @@
  */
 package org.apache.pig;
 
+import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -555,7 +557,7 @@ public class Main {
                 reader.setExpandEvents(false);
                 reader.setPrompt("grunt> ");
                 final String HISTORYFILE = ".pig_history";
-                String historyFile = System.getProperty("user.home") + File.separator  + HISTORYFILE;
+                String historyFile = getLogDir() + File.separator + HISTORYFILE;;
                 reader.setHistory(new FileHistory(new File(historyFile)));
                 ConsoleReaderInputStream inputStream = new ConsoleReaderInputStream(reader);
                 grunt = new Grunt(new BufferedReader(new InputStreamReader(inputStream)), pigContext);
@@ -1067,16 +1069,21 @@ public class Main {
             }//end else part of logFile.isDirectory()
         }//end if logFileName != null
 
-        //file name is null or its in the current working directory
-        //revert to the current working directory
-        String currDir = System.getProperty("user.dir");
-        logFile = new File(currDir);
-        logFileName = currDir + File.separator + (logFileName == null? defaultLogFileName : logFileName);
+        // Write to the home user dir if exist
+        // if not to the current working directory
+        String logDir = getLogDir();
+        logFile = new File(logDir);
+        logFileName = logDir + File.separator + (logFileName == null? defaultLogFileName : logFileName);
         if(logFile.canWrite()) {
             return logFileName;
         }
         log.warn("Cannot write to log file: " + logFileName);
         return null;
+    }
+
+    private static String getLogDir() {
+        File userHome = new File(System.getProperty("user.home"));
+        return (userHome.exists() && userHome.isDirectory()) ? System.getProperty("user.home") : System.getProperty("user.dir");
     }
 
     private static String getFileFromCanonicalPath(String canonicalPath) {
