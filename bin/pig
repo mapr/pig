@@ -172,6 +172,14 @@ if [ "$PIG_HEAPSIZE" != "" ]; then
     JAVA_HEAP_MAX="-Xmx""$PIG_HEAPSIZE""m"
 fi
 
+# Find hive home
+if [ "$HIVE_HOME" == "" ]; then
+   if [ -f "/usr/bin/hive" ]; then
+     HIVE_HOME=$(find_home "/usr/bin/hive")
+  fi
+fi
+
+
 # Find hive version
 find_hive_version(){
 HIVE_HOME=$1
@@ -181,13 +189,6 @@ echo $HIVE_VERSION
 
 HIVE_VERSION=$(find_hive_version "$HIVE_HOME")
 IS_HIVE_VERSION_LESS_1=$(echo | awk -v cur="$HIVE_VERSION" -v min=1.0 '{if (cur < min) printf("1"); else printf ("0");}')
-
-# Find hive home
-if [ "$HIVE_HOME" == "" ]; then
-   if [ -f "/usr/bin/hive" ]; then
-     HIVE_HOME=$(find_home "/usr/bin/hive")
-  fi
-fi
 
 # CLASSPATH initially contains $PIG_CONF_DIR
 CLASSPATH=${CLASSPATH}:"${PIG_CONF_DIR}"
@@ -452,6 +453,17 @@ if [ "${HIVE_HOME}" != "" ]; then
 fi
 
 CLASSPATH=${HIVE_METASTORE}:${HIVE_SHIMS}:${HIVE_SHIMS_COMMON}:${HIVE_EXEC}:${HIVE_SERDE}:${HIVE_SHIMS_COMMON_SECURE}:${CLASSPATH}
+
+# Adding data nucleus jars
+if [ "${HIVE_HOME}" != "" ]; then
+  JAVAX=$(ls "${HIVE_HOME}"/lib/javax.jdo-*jar)
+  JDO_API=$(ls "${HIVE_HOME}"/lib/jdo-api-*jar)
+  DATANUCLEUS_CORE=$(ls "${HIVE_HOME}"/lib/datanucleus-core-*jar)
+  DATANUCLEUS_API_JDO=$(ls "${HIVE_HOME}"/lib/datanucleus-api-jdo-*jar)
+  DATANUCLEUS_RDBMS=$(ls "${HIVE_HOME}"/lib/datanucleus-rdbms-*jar)
+fi
+
+CLASSPATH=${JAVAX}:${JDO_API}:${DATANUCLEUS_CORE}:${DATANUCLEUS_API_JDO}:${DATANUCLEUS_RDBMS}:${CLASSPATH}
 
 # run it
 if [ -n "$HADOOP_BIN" ]; then
