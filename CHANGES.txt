@@ -18,7 +18,9 @@
 
 Pig Change Log
 
-Release 0.16.0 - Unreleased
+Release 0.16.0
+
+bd8a0cd... PIG-4961: CROSS followed by LIMIT inside nested foreach drop data from result (rohini)
 
 INCOMPATIBLE CHANGES
 
