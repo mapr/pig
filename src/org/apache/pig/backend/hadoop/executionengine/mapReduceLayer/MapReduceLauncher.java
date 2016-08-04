@@ -19,13 +19,7 @@ package org.apache.pig.backend.hadoop.executionengine.mapReduceLayer;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -82,6 +76,10 @@ import org.apache.pig.tools.pigstats.mapreduce.MRPigStatsUtil;
 import org.apache.pig.tools.pigstats.mapreduce.MRScriptState;
 import java.net.InetSocketAddress;
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main class that launches pig for Map Reduce
@@ -249,29 +247,43 @@ public class MapReduceLauncher extends Launcher{
             MRPigStatsUtil.updateJobMroMap(jcc.getJobMroMap());
 
             // determine job tracker url
-            String jobTrackerLoc=null;
-            JobConf jobConf = jobsWithoutIds.get(0).getJobConf();
-            try {
-                String port = jobConf.get(MRConfiguration.JOB_TRACKER_HTTP_ADDRESS);
-                FileSystem fs = FileSystem.get(jobConf);
-                Class<? extends FileSystem> fclass = fs.getClass();
-                InetSocketAddress[] jobTrackerAddr=null;
-                Method method = fclass.getMethod("getJobTrackerAddrs", new Class[]{Configuration.class});
-                if (method == null)
-                    throw new Exception("No FileSystem method getJobTrackerAddrs exists");
-                jobTrackerAddr = (InetSocketAddress[]) method.invoke(fs, jobConf);
-                if (jobTrackerAddr[0] != null) {
-                     String jobTrackerHost = jobTrackerAddr[0].getHostName();
-                     jobTrackerLoc = jobTrackerHost + port.substring(port.indexOf(":"));
+            final String[] jobTrackerLocArray = new String[1];
+            final JobConf jobConf = jobsWithoutIds.get(0).getJobConf();
+
+            final String port = jobConf.get(MRConfiguration.JOB_TRACKER_HTTP_ADDRESS);
+            final FileSystem fs = FileSystem.get(jobConf);
+            Class<? extends FileSystem> fclass = fs.getClass();
+            final InetSocketAddress[][] jobTrackerAddr = new InetSocketAddress[1][];
+            final Method method = fclass.getMethod("getJobTrackerAddrs", new Class[]{Configuration.class});
+            final long TIME_OUT = 500;
+            if (method == null)
+                throw new Exception("No FileSystem method getJobTrackerAddrs exists");
+            Thread getJTThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        jobTrackerAddr[0] = (InetSocketAddress[]) method.invoke(fs, jobConf);
+                        if (jobTrackerAddr[0] != null) {
+                            String jobTrackerHost = jobTrackerAddr[0][0].getHostName();
+                            jobTrackerLocArray[0] = jobTrackerHost + port.substring(port.indexOf(":"));
+                        }
+                    } catch (Exception e) {
+                        // Could not get the job tracker location, most probably we are running in local mode.
+                        // If it is the case, we don't print out job tracker location,
+                        // because it is meaningless for local mode.
+                        jobTrackerLocArray[0] = null;
+                        log.debug("Failed to get job tracker location.", e);
+                    }
                 }
+            });
+            getJTThread.start();
+            log.debug("Started thread for getting JobTracker address.");
+            getJTThread.join(TIME_OUT);
+            if(getJTThread.isAlive()) {
+                log.debug("Thread for getting JobTracker still alive. Kill it!.");
+                getJTThread.stop();
             }
-            catch(Exception e){
-                // Could not get the job tracker location, most probably we are running in local mode.
-                // If it is the case, we don't print out job tracker location,
-                // because it is meaningless for local mode.
-                jobTrackerLoc = null;
-                log.debug("Failed to get job tracker location.", e);
-            }
+            String jobTrackerLoc = jobTrackerLocArray[0];
 
             completeFailedJobsInThisRun.clear();
 
