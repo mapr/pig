@@ -245,53 +245,66 @@ public class PigServer {
         PigStats.start(pigContext.getExecutionEngine().instantiatePigStats());
 
         // log ATS event includes the caller context
-        String auditId = PigATSClient.getPigAuditId(pigContext);
-        String callerId = (String)pigContext.getProperties().get(PigConfiguration.CALLER_ID);
-        log.info("Pig Script ID for the session: " + auditId);
-        if (callerId != null) {
-            log.info("Caller ID for session: " + callerId);
-        }
-        if (Boolean.parseBoolean(pigContext.getProperties()
-                .getProperty(PigConfiguration.ENABLE_ATS))) {
+        if(!isMRvOneOnHadoop2()) {
+            String auditId = PigATSClient.getPigAuditId(pigContext);
+            String callerId = (String) pigContext.getProperties().get(PigConfiguration.CALLER_ID);
+            log.info("Pig Script ID for the session: " + auditId);
+            if (callerId != null) {
+                log.info("Caller ID for session: " + callerId);
+            }
             if (Boolean.parseBoolean(pigContext.getProperties()
-                    .getProperty("yarn.timeline-service.enabled", "false"))) {
-                PigATSClient.ATSEvent event = new PigATSClient.ATSEvent(auditId, callerId);
-                try {
-                    PigATSClient.getInstance().logEvent(event);
-                } catch (Exception e) {
-                    log.warn("Error posting to ATS: ", e);
+                    .getProperty(PigConfiguration.ENABLE_ATS))) {
+                if (Boolean.parseBoolean(pigContext.getProperties()
+                        .getProperty("yarn.timeline-service.enabled", "false"))) {
+                    PigATSClient.ATSEvent event = new PigATSClient.ATSEvent(auditId, callerId);
+                    try {
+                        PigATSClient.getInstance().logEvent(event);
+                    } catch (Exception e) {
+                        log.warn("Error posting to ATS: ", e);
+                    }
+                } else {
+                    log.warn("ATS is disabled since"
+                            + " yarn.timeline-service.enabled set to false");
                 }
-            } else {
-                log.warn("ATS is disabled since"
-                        + " yarn.timeline-service.enabled set to false");
+
             }
 
-        }
-
-        // set hdfs caller context
-        Class callerContextClass = null;
-        try {
-            callerContextClass = Class.forName("org.apache.hadoop.ipc.CallerContext");
-        } catch (ClassNotFoundException e) {
-            // If pre-Hadoop 2.8.0, skip setting CallerContext
-        }
-        if (callerContextClass != null) {
+            // set hdfs caller context
+            Class callerContextClass = null;
             try {
-                // Reflection for the following code since it is only available since hadoop 2.8.0:
-                // CallerContext hdfsContext = new CallerContext.Builder(auditId).build();
-                // CallerContext.setCurrent(hdfsContext);
-                Class callerContextBuilderClass = Class.forName("org.apache.hadoop.ipc.CallerContext$Builder");
-                Constructor callerContextBuilderConstruct = callerContextBuilderClass.getConstructor(String.class);
-                Object builder = callerContextBuilderConstruct.newInstance(auditId);
-                Method builderBuildMethod = builder.getClass().getMethod("build");
-                Object hdfsContext = builderBuildMethod.invoke(builder);
-                Method callerContextSetCurrentMethod = callerContextClass.getMethod("setCurrent", hdfsContext.getClass());
-                callerContextSetCurrentMethod.invoke(callerContextClass, hdfsContext);
-            } catch (Exception e) {
-                // Shall not happen unless API change in future Hadoop commons
-                throw new ExecException(e);
+                callerContextClass = Class.forName("org.apache.hadoop.ipc.CallerContext");
+            } catch (ClassNotFoundException e) {
+                // If pre-Hadoop 2.8.0, skip setting CallerContext
+            }
+            if (callerContextClass != null) {
+                try {
+                    // Reflection for the following code since it is only available since hadoop 2.8.0:
+                    // CallerContext hdfsContext = new CallerContext.Builder(auditId).build();
+                    // CallerContext.setCurrent(hdfsContext);
+                    Class callerContextBuilderClass = Class.forName("org.apache.hadoop.ipc.CallerContext$Builder");
+                    Constructor callerContextBuilderConstruct = callerContextBuilderClass.getConstructor(String.class);
+                    Object builder = callerContextBuilderConstruct.newInstance(auditId);
+                    Method builderBuildMethod = builder.getClass().getMethod("build");
+                    Object hdfsContext = builderBuildMethod.invoke(builder);
+                    Method callerContextSetCurrentMethod = callerContextClass.getMethod("setCurrent", hdfsContext.getClass());
+                    callerContextSetCurrentMethod.invoke(callerContextClass, hdfsContext);
+                } catch (Exception e) {
+                    // Shall not happen unless API change in future Hadoop commons
+                    throw new ExecException(e);
+                }
             }
         }
+    }
+
+    private static boolean isMRvOneOnHadoop2(){
+        Class clazz = null;
+         try {
+             clazz = Class.forName("org.apache.hadoop.yarn.conf.YarnConfiguration");
+         } catch (ClassNotFoundException e){
+             // we are most likely running on hadoop-2 in MRv1 mode
+             return true;
+         }
+        return false;
     }
 
     private void addHadoopProperties() throws ExecException {
