@@ -18,23 +18,39 @@
 package org.apache.pig.backend.hadoop.executionengine.mapReduceLayer;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration.IntegerRanges;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapred.Counters;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputCommitter;
+import org.apache.hadoop.mapreduce.OutputFormat;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.StatusReporter;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
-import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.mapreduce.lib.map.WrappedMapper;
+import org.apache.hadoop.mapreduce.task.MapContextImpl;
+import org.apache.hadoop.security.Credentials;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigGenericMapBase;
 import org.apache.pig.data.DataBag;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.io.PigNullableWritable;
 import org.apache.pig.impl.util.Pair;
+import org.apache.hadoop.mapreduce.lib.map.WrappedMapper;
 
 abstract public class PigMapBase extends PigGenericMapBase {
     /**
@@ -53,15 +69,11 @@ abstract public class PigMapBase extends PigGenericMapBase {
     public Context getIllustratorContext(Configuration conf, DataBag input,
           List<Pair<PigNullableWritable, Writable>> output, InputSplit split)
           throws IOException, InterruptedException {
-        return new IllustratorContext(conf, input, output, split);
+        org.apache.hadoop.mapreduce.Mapper.Context mapperContext = new WrappedMapper<Text, Tuple, PigNullableWritable, Writable>().getMapContext(new IllustratorContext(conf, input, output, split));
+        return mapperContext;
     }
     
-    @Override
-    public boolean inIllustrator(Context context) {
-        return (context instanceof PigMapBase.IllustratorContext);
-    }
-    
-    public class IllustratorContext extends Context {
+    public class IllustratorContext extends MapContextImpl<Text, Tuple, PigNullableWritable, Writable> {
         private DataBag input;
         List<Pair<PigNullableWritable, Writable>> output;
         private Iterator<Tuple> it = null;
@@ -114,5 +126,10 @@ abstract public class PigMapBase extends PigGenericMapBase {
         public void progress() {
           
         }
+    }
+
+    @Override
+    public boolean inIllustrator(Context context) {
+        return ((WrappedMapper.Context)context).getConfiguration().get("pig.illustrating")!=null;
     }
 }
