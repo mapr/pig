@@ -203,6 +203,14 @@
     <loadproperties srcfile="${ivy.dir}/libraries.properties"/>
 
     <property name="hadoopversion" value="20" />
+    <property name="rebuild.piggybank" value="false" />
+
+    <condition property="isSkipRebuildPiggybank">
+        <not>
+            <equals arg1="${rebuild.piggybank}" arg2="true"/>
+        </not>
+    </condition>
+
 
     <condition property="isHadoop23">
         <equals arg1="${hadoopversion}" arg2="23"/>
@@ -1851,7 +1859,7 @@
 
      <target name="published" depends="ivy-publish-local, maven-artifacts"/>
 
-     <target name="piggybank" depends="jar">
+     <target name="piggybank" depends="jar" unless="isSkipRebuildPiggybank">
          <ant antfile="contrib/piggybank/java/build.xml" inheritAll="false">
              <propertyset id="hadoop"> <propertyref name="hadoopversion"/> </propertyset>
          </ant>
