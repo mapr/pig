@@ -18,7 +18,8 @@
 package org.apache.pig.backend.hadoop.executionengine.shims;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -27,22 +28,25 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.TIPStatus;
+import org.apache.hadoop.mapred.TaskReport;
 import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
-import org.apache.hadoop.mapred.TaskReport;
+import org.apache.hadoop.mapreduce.ContextFactory;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskType;
+import org.apache.hadoop.mapreduce.task.JobContextImpl;
+import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.apache.pig.PigConfiguration;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRConfiguration;
-import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputCommitter;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POStore;
 import org.apache.pig.backend.hadoop20.PigJobControl;
+import org.apache.hadoop.mapred.JobClient;
 
 /**
  * We need to make Pig work with both hadoop 20 and hadoop 23 (PIG-2125). However,
@@ -57,52 +61,74 @@ import org.apache.pig.backend.hadoop20.PigJobControl;
 public class HadoopShims {
 
     private static Log LOG = LogFactory.getLog(HadoopShims.class);
+    private static Method getFileSystemClass;
 
     static public JobContext cloneJobContext(JobContext original) throws IOException, InterruptedException {
-        JobContext newContext = new JobContext(original.getConfiguration(), original.getJobID());
+        Class clazz = null;
+        try {
+            clazz = Class.forName("org.apache.hadoop.mapreduce.ContextFactory");
+        }
+        catch (ClassNotFoundException e) {
+            // we are most likely running on hadoop-2 in MRv1 mode
+            JobContext newContext = new JobContextImpl(original.getConfiguration(), original.getJobID());
+            return newContext;
+        }
+        JobContext newContext = ContextFactory.cloneContext(original,
+                new JobConf(original.getConfiguration()));
         return newContext;
     }
 
     static public TaskAttemptContext createTaskAttemptContext(Configuration conf,
             TaskAttemptID taskId) {
-        TaskAttemptContext newContext = new TaskAttemptContext(conf,
-                taskId);
-        return newContext;
+        if (conf instanceof JobConf) {
+            return new TaskAttemptContextImpl(new JobConf(conf), taskId);
+        } else {
+            return new TaskAttemptContextImpl(conf, taskId);
+        }
     }
 
     static public JobContext createJobContext(Configuration conf,
             JobID jobId) {
-        JobContext newJobContext = new JobContext(
-                conf, jobId);
-        return newJobContext;
+        if (conf instanceof JobConf) {
+            return new JobContextImpl(new JobConf(conf), jobId);
+        } else {
+            return new JobContextImpl(conf, jobId);
+        }
     }
 
     static public boolean isMap(TaskAttemptID taskAttemptID) {
-        return taskAttemptID.isMap();
+        TaskType type = taskAttemptID.getTaskType();
+        if (type==TaskType.MAP)
+            return true;
+
+        return false;
     }
 
     static public TaskAttemptID getNewTaskAttemptID() {
-        return new TaskAttemptID();
+        TaskAttemptID taskAttemptID = new TaskAttemptID("", 1, TaskType.MAP,
+                1, 1);
+        return taskAttemptID;
     }
 
     static public TaskAttemptID createTaskAttemptID(String jtIdentifier, int jobId, boolean isMap,
             int taskId, int id) {
-        return new TaskAttemptID(jtIdentifier, jobId, isMap, taskId, id);
+        if (isMap) {
+            return new TaskAttemptID(jtIdentifier, jobId, TaskType.MAP, taskId, id);
+        } else {
+            return new TaskAttemptID(jtIdentifier, jobId, TaskType.REDUCE, taskId, id);
+        }
     }
 
     static public void storeSchemaForLocal(Job job, POStore st) throws IOException {
-        JobContext jc = HadoopShims.createJobContext(job.getJobConf(),
-                new org.apache.hadoop.mapreduce.JobID());
-        JobContext updatedJc = PigOutputCommitter.setUpContext(jc, st);
-        PigOutputCommitter.storeCleanup(st, updatedJc.getConfiguration());
+
     }
 
     static public String getFsCounterGroupName() {
-        return "FileSystemCounters";
+        return "org.apache.hadoop.mapreduce.FileSystemCounter";
     }
 
     static public void commitOrCleanup(OutputCommitter oc, JobContext jc) throws IOException {
-        oc.cleanupJob(jc);
+        oc.commitJob(jc);
     }
 
     public static JobControl newJobControl(String groupName, int timeToSleep) {
@@ -110,21 +136,36 @@ public class HadoopShims {
     }
 
     public static long getDefaultBlockSize(FileSystem fs, Path path) {
-        return fs.getDefaultBlockSize();
+        return fs.getDefaultBlockSize(path);
     }
 
     public static Counters getCounters(Job job) throws IOException {
-        JobClient jobClient = job.getJobClient();
-        return jobClient.getJob(job.getAssignedJobID()).getCounters();
+        Class clazz;
+        try {
+            clazz = Class.forName("org.apache.hadoop.mapreduce.Cluster");
+        } catch(ClassNotFoundException e) {
+            // we are most likely running on hadoop-2 in MRv1 mode
+            return new Counters(job.getJob().getCounters());
+        }
+
+        try {
+            //get constructor that takes a Configuration as argument
+            Constructor constructor = clazz.getConstructor(new Class[]{Configuration.class});
+            org.apache.hadoop.mapreduce.Cluster cluster = (org.apache.hadoop.mapreduce.Cluster)
+                    constructor.newInstance(job.getJobConf());
+            org.apache.hadoop.mapreduce.Job mrJob = cluster.getJob(job.getAssignedJobID());
+
+            if (mrJob == null) { // In local mode, mrJob will be null
+                mrJob = job.getJob();
+            }
+            return new Counters(mrJob.getCounters());
+        } catch (Exception ir) {
+            throw new IOException(ir);
+        }
     }
 
-    public static boolean isJobFailed(TaskReport report) {
-        float successfulProgress = 1.0f;
-        // if the progress reported is not 1.0f then the map or reduce
-        // job failed
-        // this comparison is in place for the backward compatibility
-        // for Hadoop 0.20
-        return report.getProgress() != successfulProgress;
+    public static b oolean isJobFailed(TaskReport report) {
+        return report.getCurrentStatus()==TIPStatus.FAILED;
     }
 
     public static void unsetConf(Configuration conf, String key) {
@@ -137,7 +178,7 @@ public class HadoopShims {
      * @param taskAttemptID
      */
     public static void setTaskAttemptId(Configuration conf, TaskAttemptID taskAttemptID) {
-        conf.set(MRConfiguration.TASK_ID, taskAttemptID.toString());
+        conf.setInt(MRConfiguration.JOB_APPLICATION_ATTEMPT_ID, taskAttemptID.getId());
     }
 
     /**
@@ -170,20 +211,23 @@ public class HadoopShims {
      */
     public static double progressOfRunningJob(Job j)
             throws IOException {
-        RunningJob rj = j.getJobClient().getJob(j.getAssignedJobID());
-        if (rj == null && j.getState() == Job.SUCCESS)
-            return 1;
-        else if (rj == null)
+        org.apache.hadoop.mapreduce.Job mrJob = j.getJob();
+        try {
+            return (mrJob.mapProgress() + mrJob.reduceProgress()) / 2;
+        } catch (Exception ir) {
             return 0;
-        else {
-            return (rj.mapProgress() + rj.reduceProgress()) / 2;
         }
     }
 
     public static void killJob(Job job) throws IOException {
-        RunningJob runningJob = job.getJobClient().getJob(job.getAssignedJobID());
-        if (runningJob != null)
-            runningJob.killJob();
+        org.apache.hadoop.mapreduce.Job mrJob = job.getJob();
+        try {
+            if (mrJob != null) {
+                mrJob.killJob();
+            }
+        } catch (Exception ir) {
+            throw new IOException(ir);
+        }
     }
 
     public static Iterator<TaskReport> getTaskReports(Job job, TaskType type) throws IOException {
@@ -191,16 +235,37 @@ public class HadoopShims {
             LOG.info("TaskReports are disabled for job: " + job.getAssignedJobID());
             return null;
         }
-        JobClient jobClient = job.getJobClient();
-        TaskReport[] reports = null;
-        if (type == TaskType.MAP) {
-            reports = jobClient.getMapTaskReports(job.getAssignedJobID());
-        } else {
-            reports = jobClient.getReduceTaskReports(job.getAssignedJobID());
-        }
-        return reports == null ? null : Arrays.asList(reports).iterator();
+            JobClient jobClient = job.getJobClient();
+            return (type == TaskType.MAP)
+                    ? new TaskReportIterator(jobClient.getMapTaskReports(job.getAssignedJobID()))
+                    : new TaskReportIterator(jobClient.getReduceTaskReports(job.getAssignedJobID()));
     }
-    
+
+    private static class TaskReportIterator implements Iterator<TaskReport> {
+
+        private TaskReport[] reports;
+        private int curIndex = 0;
+
+        public TaskReportIterator(TaskReport[] reports) {
+            this.reports = reports;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return curIndex < this.reports.length ;
+        }
+
+        @Override
+        public TaskReport next() {
+            return reports[curIndex++];
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
     public static boolean isHadoopYARN() {
         return false;
     }
