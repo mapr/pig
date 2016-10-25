@@ -268,7 +268,9 @@ public abstract class PigGenericMapBase extends Mapper<Text, Tuple, PigNullableW
                     root.attachInput(inpTuple);
                 }
             } else {
-                root.attachInput(tf.newTupleNoCopy(inpTuple.getAll()));
+                if (root != null){
+                    root.attachInput(tf.newTupleNoCopy(inpTuple.getAll()));
+                }
             }
         }
 

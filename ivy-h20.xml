@@ -118,27 +118,27 @@
     <dependency org="com.sun.jersey" name="jersey-core" rev="${jersey-core.version}"
       conf="hadoop20->default"/>
     <dependency org="org.apache.hadoop" name="hadoop-core" rev="${hadoop-core.version}"
-      conf="hadoop20->default"/>
+      conf="hadoop20->default" transitive="false"/>
     <dependency org="org.apache.hadoop" name="hadoop-test" rev="${hadoop-test.version}"
-      conf="hadoop20->default"/>
-    <dependency org="org.apache.hadoop" name="hadoop-annotations" 
-      rev="${hadoop-common.version}" conf="hadoop23->master"/>
-    <dependency org="org.apache.hadoop" name="hadoop-auth" 
-      rev="${hadoop-common.version}" conf="hadoop23->master"/>
-    <dependency org="org.apache.hadoop" name="hadoop-common" 
-      rev="${hadoop-common.version}" conf="hadoop23->master">
+      conf="hadoop20->default" transitive="false"/>
+    <dependency org="org.apache.hadoop" name="hadoop-annotations"
+      rev="${hadoop-common.version}" conf="hadoop20->master"/>
+    <dependency org="org.apache.hadoop" name="hadoop-auth"
+      rev="${hadoop-common.version}" conf="hadoop20->master"/>
+    <dependency org="org.apache.hadoop" name="hadoop-common"
+      rev="${hadoop-common.version}" conf="hadoop20->master">
       <artifact name="hadoop-common" ext="jar" />
       <artifact name="hadoop-common" type="tests" ext="jar" m:classifier="tests" />
     </dependency>
     <dependency org="org.apache.hadoop" name="hadoop-hdfs"
-      rev="${hadoop-hdfs.version}" conf="hadoop23->master">
+      rev="${hadoop-hdfs.version}" conf="hadoop20->master" transitive="false">
       <artifact name="hadoop-hdfs" ext="jar" />
       <artifact name="hadoop-hdfs" type="tests" ext="jar" m:classifier="tests" />
     </dependency>
     <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="${hadoop-mapreduce.version}"
-      conf="hadoop23->master"/>
+      conf="hadoop20->master"/>
     <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="${hadoop-mapreduce.version}"
-      conf="hadoop23->master">
+      conf="hadoop20->master">
         <artifact name="hadoop-mapreduce-client-jobclient" ext="jar" />
         <artifact name="hadoop-mapreduce-client-jobclient" type="tests" ext="jar" m:classifier="tests"/>
         <exclude org="commons-daemon" module="commons-daemon"/><!--bad POM-->

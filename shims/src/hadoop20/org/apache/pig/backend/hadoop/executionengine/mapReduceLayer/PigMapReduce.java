@@ -20,24 +20,63 @@ package org.apache.pig.backend.hadoop.executionengine.mapReduceLayer;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration.IntegerRanges;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.RawComparator;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.jobcontrol.Job;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.InputFormat;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputCommitter;
+import org.apache.hadoop.mapreduce.OutputFormat;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.ReduceContext;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.mapreduce.lib.reduce.WrappedReducer;
+import org.apache.hadoop.mapreduce.task.ReduceContextImpl;
+import org.apache.hadoop.security.Credentials;
+import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigMapBase.IllustratorContext;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POPackage;
+import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.io.NullableTuple;
 import org.apache.pig.impl.io.PigNullableWritable;
 import org.apache.pig.impl.util.Pair;
 import org.apache.pig.pen.FakeRawKeyValueIterator;
 
 public class PigMapReduce extends PigGenericMapReduce {
+
+    static class IllustrateReducerContext extends WrappedReducer<PigNullableWritable, NullableTuple, PigNullableWritable, Writable> {
+        public IllustratorContext
+        getReducerContext(ReduceContext<PigNullableWritable, NullableTuple, PigNullableWritable, Writable> reduceContext) {
+            return new IllustratorContext(reduceContext);
+        }
+
+        public class IllustratorContext
+                extends WrappedReducer.Context {
+            public IllustratorContext(
+                    ReduceContext<PigNullableWritable, NullableTuple, PigNullableWritable, Writable> reduceContext) {
+                super(reduceContext);
+            }
+            public POPackage getPack() {
+                return ((Reduce.IllustratorContextImpl)reduceContext).pack;
+            }
+        }
+    }
+
     public static class Reduce extends PigGenericMapReduce.Reduce {
         /**
          * Get reducer's illustrator context
@@ -48,14 +87,15 @@ public class PigMapReduce extends PigGenericMapReduce {
          * @throws IOException
          * @throws InterruptedException
          */
-        @Override
         public Context getIllustratorContext(Job job,
                List<Pair<PigNullableWritable, Writable>> input, POPackage pkg) throws IOException, InterruptedException {
-            return new IllustratorContext(job, input, pkg);
+            org.apache.hadoop.mapreduce.Reducer.Context reducerContext = new IllustrateReducerContext()
+                    .getReducerContext(new IllustratorContextImpl(job, input, pkg));
+            return reducerContext;
         }
         
         @SuppressWarnings("unchecked")
-        public class IllustratorContext extends Context {
+        public class IllustratorContextImpl extends ReduceContextImpl<PigNullableWritable, NullableTuple, PigNullableWritable, Writable> {
             private PigNullableWritable currentKey = null, nextKey = null;
             private NullableTuple nextValue = null;
             private List<NullableTuple> currentValues = null;
@@ -63,9 +103,10 @@ public class PigMapReduce extends PigGenericMapReduce {
             private final ByteArrayOutputStream bos;
             private final DataOutputStream dos;
             private final RawComparator sortComparator, groupingComparator;
-            POPackage pack = null;
+            public POPackage pack = null;
+            private IllustratorValueIterable iterable = new IllustratorValueIterable();
 
-            public IllustratorContext(Job job,
+            public IllustratorContextImpl(Job job,
                   List<Pair<PigNullableWritable, Writable>> input,
                   POPackage pkg
                   ) throws IOException, InterruptedException {
@@ -104,7 +145,56 @@ public class PigMapReduce extends PigGenericMapReduce {
                 }
                 pack = pkg;
             }
-            
+
+            public class IllustratorValueIterator implements ReduceContext.ValueIterator<NullableTuple> {
+
+                private int pos = -1;
+                private int mark = -1;
+
+                public void mark() throws IOException {
+                    mark=pos-1;
+                    if (mark<-1)
+                        mark=-1;
+                }
+
+                public void reset() throws IOException {
+                    pos=mark;
+                }
+
+                public void clearMark() throws IOException {
+                    mark=-1;
+                }
+
+                public boolean hasNext() {
+                    return pos<currentValues.size()-1;
+                }
+
+                @Override
+                public NullableTuple next() {
+                    pos++;
+                    return currentValues.get(pos);
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("remove not implemented");
+                }
+
+                public void resetBackupStore() throws IOException {
+                    pos=-1;
+                    mark=-1;
+                }
+
+            }
+
+            protected class IllustratorValueIterable implements Iterable<NullableTuple> {
+                private IllustratorValueIterator iterator = new IllustratorValueIterator();
+                @Override
+                public Iterator<NullableTuple> iterator() {
+                    return iterator;
+                }
+            }
+
             @Override
             public PigNullableWritable getCurrentKey() {
                 return currentKey;
@@ -149,7 +239,7 @@ public class PigMapReduce extends PigGenericMapReduce {
             
             @Override
             public Iterable<NullableTuple> getValues() {
-                return currentValues;
+                return iterable;
             }
             
             @Override
@@ -163,14 +253,14 @@ public class PigMapReduce extends PigGenericMapReduce {
 
         @Override
         public boolean inIllustrator(
-                org.apache.hadoop.mapreduce.Reducer.Context context) {
-            return (context instanceof PigMapReduce.Reduce.IllustratorContext);
+                org.apache.hadoop.mapreduce.Reducer.Context context) { 
+            return (context instanceof PigMapReduce.IllustrateReducerContext.IllustratorContext);
         }
 
         @Override
         public POPackage getPack(
                 org.apache.hadoop.mapreduce.Reducer.Context context) {
-            return ((PigMapReduce.Reduce.IllustratorContext) context).pack;
+            return ((PigMapReduce.IllustrateReducerContext.IllustratorContext) context).getPack();
         }
     }
 }

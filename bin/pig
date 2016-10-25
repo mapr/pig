@@ -373,7 +373,7 @@ HADOOP_CORE_JAR=`echo ${HADOOP_HOME}/hadoop-core*.jar`
 MAPR_VERSION=$(cat /opt/mapr/MapRBuildVersion | awk -F "." '{print $1"."$2}')
 
 # if mapr-core release >=4.0 (yarn) returns 2, else returns boolean 1
-HADOOP_VERSION=$(echo "$MAPR_VERSION >= 4.0" | bc | awk '{printf "%s" , $0}'| awk '{sum=$0+1} END {print sum}')
+HADOOP_VERSION=$(echo | awk -v cur=$version -v min=1.0.3 '{if (cur >= min) printf("1"); else printf ("0");}'| awk '{sum=$0+1} END {print sum}')
 
 # if using HBase, likely want to include HBase jars and config
 if which hbase >/dev/null; then
