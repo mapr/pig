@@ -164,7 +164,7 @@ public class HadoopShims {
         }
     }
 
-    public static b oolean isJobFailed(TaskReport report) {
+    public static boolean isJobFailed(TaskReport report) {
         return report.getCurrentStatus()==TIPStatus.FAILED;
     }
 
