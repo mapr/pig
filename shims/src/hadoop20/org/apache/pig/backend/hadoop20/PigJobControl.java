@@ -39,13 +39,11 @@ public class PigJobControl extends JobControl {
   private static final Log log = LogFactory.getLog(PigJobControl.class);
 
   private static Field runnerState;
-  private static Field jobsInProgress;
-  private static Field successfulJobs;
-  private static Field failedJobs;
+    
+  private static Method checkRunningJobs;
+  private static Method checkWaitingJobs;
+  private static Method startReadyJobs;
 
-
-  private static Method checkState;
-  private static Method submit;
 
   private static boolean initSuccesful;
 
@@ -54,17 +52,12 @@ public class PigJobControl extends JobControl {
 
       runnerState = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredField("runnerState");
       runnerState.setAccessible(true);
-      jobsInProgress = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredField("runningJobs");
-      jobsInProgress.setAccessible(true);
-      successfulJobs = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredField("successfulJobs");
-      successfulJobs.setAccessible(true);
-      failedJobs = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredField("failedJobs");
-      failedJobs.setAccessible(true);
-
-      checkState = ControlledJob.class.getDeclaredMethod("checkState");
-      checkState.setAccessible(true);
-      submit = ControlledJob.class.getDeclaredMethod("submit");
-      submit.setAccessible(true);
+      checkRunningJobs = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredMethod("checkRunningJobs");
+      checkRunningJobs.setAccessible(true);
+      checkWaitingJobs = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredMethod("checkWaitingJobs");
+      checkWaitingJobs.setAccessible(true);
+      startReadyJobs = org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl.class.getDeclaredMethod("startReadyJobs");
+      startReadyJobs.setAccessible(true);
 
       initSuccesful = true;
     } catch (Exception e) {
@@ -111,30 +104,6 @@ public class PigJobControl extends JobControl {
     }
   }
 
-  private State checkState(ControlledJob j) {
-    try {
-      return (State)checkState.invoke(j);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private State submit(ControlledJob j) {
-    try {
-      return (State)submit.invoke(j);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private LinkedList<ControlledJob> getJobs(Field field) {
-    try {
-      return (LinkedList<ControlledJob>)field.get(this);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 
 
   /**
@@ -149,66 +118,43 @@ public class PigJobControl extends JobControl {
       super.run();
       return;
     }
-    try {
-      setRunnerState(ThreadState.RUNNING);
-      while (true) {
-        while (getRunnerState() == ThreadState.SUSPENDED) {
-          try {
-            Thread.sleep(timeToSleep);
-          }
-          catch (Exception e) {
-            //TODO the thread was interrupted, do something!!!
-          }
-        }
-
-        synchronized(this) {
-          Iterator<ControlledJob> it = getJobs(jobsInProgress).iterator();
-          if (!it.hasNext()) {
-            stop();
-          }
-          while(it.hasNext()) {
-            ControlledJob j = it.next();
-            log.debug("Checking state of job "+j);
-            switch(checkState(j)) {
-              case SUCCESS:
-                getJobs(successfulJobs).add(j);
-                it.remove();
-                break;
-              case FAILED:
-              case DEPENDENT_FAILED:
-                getJobs(failedJobs).add(j);
-                it.remove();
-                break;
-              case READY:
-                submit(j);
-                break;
-              case RUNNING:
-              case WAITING:
-                //Do Nothing
-                break;
-            }
-          }
-        }
-
-        if (getRunnerState() != ThreadState.RUNNING &&
-                getRunnerState() != ThreadState.SUSPENDED) {
-          break;
-        }
+    
+    setRunnerState(ThreadState.RUNNING);
+    while (true) {
+      while (getRunnerState() == ThreadState.SUSPENDED) {
         try {
           Thread.sleep(timeToSleep);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           //TODO the thread was interrupted, do something!!!
         }
-        if (getRunnerState() != ThreadState.RUNNING &&
-                getRunnerState() != ThreadState.SUSPENDED) {
-          break;
-        }
       }
-    }catch(Throwable t) {
-      log.error("Error while trying to run jobs.",t);
-      //Mark all jobs as failed because we got something bad.
+      mainLoopAction();
+      if (getRunnerState() != ThreadState.RUNNING &&
+          getRunnerState() != ThreadState.SUSPENDED) {
+        break;
+      }
+      try {
+        Thread.sleep(timeToSleep);
+      }
+      catch (Exception e) {
+
+      }
+      if (getRunnerState() != ThreadState.RUNNING &&
+          getRunnerState() != ThreadState.SUSPENDED) {
+        break;
+      }
     }
     setRunnerState(ThreadState.STOPPED);
   }
+
+  private void mainLoopAction() {
+    try {
+      checkRunningJobs.invoke(this);
+      checkWaitingJobs.invoke(this);
+      startReadyJobs.invoke(this);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }
