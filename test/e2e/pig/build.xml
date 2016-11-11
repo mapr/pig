@@ -120,7 +120,7 @@
     </not>
   </condition>
 
-  <condition property="hcat.bin" value="hcat">
+  <condition property="hcat.bin" value="/opt/mapr/bin/hcat">
     <not>
       <isset property="hcat.bin"/>
     </not>
