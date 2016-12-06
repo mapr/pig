@@ -701,6 +701,7 @@
         <propertyreset name="hadoopversion" value="20" />
         <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
         <antcall target="clean" inheritRefs="true" inheritall="true"/>
+        <antcall target="copy-ivy-20-xml"/>
         <antcall target="jar" inheritRefs="true" inheritall="true"/>
         <antcall target="copyHadoop1LocalRuntimeDependencies"/>
         <delete dir="${build.dir}" />
@@ -708,7 +709,17 @@
         <propertyreset name="hbase.hadoop.version" value="hadoop2" />
         <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
         <propertyreset name="src.exclude.dir" value="" />
+        <antcall target="copy-ivy-23-xml"/>
         <antcall target="jar" inheritRefs="true" inheritall="true"/>
+    </target>
+
+    <target name="copy-ivy-20-xml" description="Copies ivy-20.xml to ivy.xml for hadoopversion = 20">
+        <copy file="${basedir}/ivy-h20.xml" tofile="${basedir}/ivy.xml" overwrite="true"/>
+    </target>
+
+
+    <target name="copy-ivy-23-xml" description="Copies ivy-23.xml to ivy.xml for hadoopversion = 23">
+        <copy file="${basedir}/ivy-h23.xml" tofile="${basedir}/ivy.xml" overwrite="true"/>
     </target>
 
     <!-- ================================================================== -->
@@ -811,6 +822,7 @@
         <propertyreset name="isHadoop" value="true" />
         <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
         <antcall target="clean" inheritRefs="true" inheritall="true"/>
+        <antcall target="copy-ivy-23-xml"/>
         <antcall target="jar" inheritRefs="true" inheritall="true"/>
         <!-- Move and rename pig jar for Hadoop2/23 to a different location before compiling for Hadoop1/20 -->
         <move file="${output.jarfile.core}" tofile="${basedir}/${artifact.pig-h2.jar}"/>
@@ -818,6 +830,7 @@
         <propertyreset name="hadoopversion" value="20" />
         <propertyreset name="isHadoop" value="" />
         <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
+        <antcall target="copy-ivy-20-xml"/>
         <antcall target="jar" inheritRefs="true" inheritall="true"/>
         <move file="${output.jarfile.core}" tofile="${output.jarfile.core-h1}"/>
         <move file="${basedir}/${artifact.pig-h2.jar}" tofile="${output.jarfile.core-h2}"/>
