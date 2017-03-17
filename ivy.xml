@@ -430,6 +430,8 @@
       conf="test->master" />
     <dependency org="com.esotericsoftware.kryo" name="kryo" rev="${kryo.version}"
       conf="compile->master" />
+    <dependency org="org.apache.commons" name="commons-lang3" rev="${commons-lang3.version}"
+      conf="compile->master" />
 
     <dependency org="org.vafer" name="jdeb" rev="${jdeb.version}"
       conf="compile->master">
