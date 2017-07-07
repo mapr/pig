@@ -87,7 +87,6 @@ import org.apache.pig.tools.pigstats.mapreduce.MRJobStats;
 import org.apache.pig.tools.pigstats.mapreduce.MRPigStatsUtil;
 import org.apache.pig.tools.pigstats.mapreduce.MRScriptState;
 
-import org.python.google.common.collect.Lists;
 
 import java.net.InetSocketAddress;
 import java.lang.reflect.Method;

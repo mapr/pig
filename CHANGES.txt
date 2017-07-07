@@ -24,6 +24,9 @@ INCOMPATIBLE CHANGES
 
 IMPROVEMENTS
 
+PIG-5269: MapReduceLauncher and MRJobStats imports org.python.google.common.collect.Lists instead of org.google.common.collect.Lists (nkollar via szita)
+
+
 OPTIMIZATIONS
  
 BUG FIXES
