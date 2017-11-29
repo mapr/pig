@@ -485,7 +485,7 @@ pig.location.check.strict=false
 
 # Path to the hcat executable, for use with pig.sql.type=hcat (default: null)
 #
-hcat.bin=/usr/local/hcat/bin/hcat
+hcat.bin=/opt/mapr/bin/hcat
 
 ###########################################################################
 #
