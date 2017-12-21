@@ -217,10 +217,10 @@ if [ "$includeHCatalog" == "true" ]; then
   hiveExecVersion=`ls $HIVE_HOME/lib/$hiveExecJar`
   fbJarVersion=`ls $HIVE_HOME/lib/$fbJar`
   jdoECJarVersion=`ls $HIVE_HOME/lib/$jdoECJar`
-  slfJarVersion=`ls $HIVE_HOME/lib/$slfJar`
+  slfJarVersion=`ls $HIVE_HOME/lib/$slfJar 1> /dev/null 2>&1`
   jdo=`ls $HIVE_HOME/lib/$jdo`
   jdocore=`ls $HIVE_HOME/lib/$jdocore`
-  hivejdbc=`ls $HIVE_HOME/lib/$hivejdbc|grep -v "standalone"`
+  hivejdbc=`ls $HIVE_HOME/lib/$hivejdbc|grep -v "standalone"|grep -v "handler"`
   jdordbms=`ls $HIVE_HOME/lib/$jdordbms`
   hbaseHiveVersion=`ls $HIVE_HOME/lib/$hbaseHiveJar`
 
