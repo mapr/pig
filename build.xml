@@ -33,7 +33,7 @@
     <property name="pigunit.pom" value="${basedir}/ivy/pigunit.pom" />
     <property name="piggybank.pom" value="${basedir}/ivy/piggybank.pom" />
     <property name="pig.version" value="0.16.0-mapr" />
-    <property name="pig.version.suffix" value="-SNAPSHOT" />
+    <property name="pig.version.suffix" value="-1901" />
     <property name="version" value="${pig.version}${pig.version.suffix}" />
     <property name="final.name" value="${name}-${version}" />
     <property name="year" value="2007-2012" />
