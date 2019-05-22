@@ -67,7 +67,7 @@ public class RegisterResolver {
         if (scheme != null) {
             scheme = scheme.toLowerCase();
         }
-        if (scheme == null || scheme.equals("file") || scheme.equals("hdfs")) {
+        if (scheme == null || scheme.equals("file") || scheme.equals("hdfs") || scheme.equals("maprfs")) {
             return new URI[] { uri };
         } else if (scheme.equals("ivy")) {
             DownloadResolver downloadResolver = DownloadResolver.getInstance();
