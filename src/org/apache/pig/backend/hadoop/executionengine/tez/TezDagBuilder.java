@@ -1066,7 +1066,7 @@ public class TezDagBuilder extends TezOpPlanVisitor {
                 // set out filespecs
                 String outputPathString = st.getSFile().getFileName();
                 if (!outputPathString.contains("://")
-                        || outputPathString.startsWith("hdfs://")) {
+                        || outputPathString.startsWith("maprfs://")) {
                     payloadConf.set("pig.streaming.log.dir", new Path(
                             outputPathString, JobControlCompiler.LOG_DIR)
                             .toString());

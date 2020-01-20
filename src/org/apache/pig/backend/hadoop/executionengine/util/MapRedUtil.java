@@ -95,8 +95,8 @@ public class MapRedUtil {
 
         if (mapConf.get("fs.file.impl")!=null)
             conf.set("fs.file.impl", mapConf.get("fs.file.impl"));
-        if (mapConf.get("fs.hdfs.impl")!=null)
-            conf.set("fs.hdfs.impl", mapConf.get("fs.hdfs.impl"));
+        if (mapConf.get("fs.maprfs.impl")!=null)
+            conf.set("fs.maprfs.impl", mapConf.get("fs.maprfs.impl"));
 
         copyTmpFileConfigurationValues(PigMapReduce.sJobConfInternal.get(), conf);
 

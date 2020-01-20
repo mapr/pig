@@ -47,6 +47,10 @@
 #     HBASE_CONF_DIR - Optionally, the HBase configuration to run against
 #                      when using HBaseStorage. Defaults to ${HBASE_HOME}/conf
 
+BASEMAPR=${MAPR_HOME:-/opt/mapr}
+env=$BASEMAPR/conf/env.sh
+[ -f $env ] && . $env
+
 cygwin=false
 case "`uname`" in
 CYGWIN*) cygwin=true;;
@@ -97,8 +101,27 @@ for f in "$@"; do
      fi
 done
 
+function find_home() {
+target="$1"
+
+# file exists and is a symbolic link
+while [ -h "$target" ]; do
+target=`readlink "$target"`
+done
+
+# find home
+home_dir=$(dirname "$target") # points to bin dir
+home_dir="$home_dir/../"
+echo "$home_dir"
+}
+
 # resolve links - $0 may be a softlink
 this="${BASH_SOURCE-$0}"
+
+if [ -L $0 ]; then
+this=$(readlink $0)
+fi
+
 
 # convert relative path to absolute path
 bin=$(cd -P -- "$(dirname -- "$this")">/dev/null && pwd -P)
@@ -146,8 +169,23 @@ if [ "$PIG_HEAPSIZE" != "" ]; then
     JAVA_HEAP_MAX="-Xmx""$PIG_HEAPSIZE""m"
 fi
 
+# Find hive home
+if [ "$HIVE_HOME" == "" ]; then
+   if [ -f "/usr/bin/hive" ]; then
+     HIVE_HOME=$(find_home "/usr/bin/hive")
+  fi
+fi
+
+# Find hive version
+find_hive_version(){
+HIVE_HOME=$1
+HIVE_VERSION=$(echo $HIVE_HOME| awk -F "/" '{print $5}' | cut -c 6-)
+echo $HIVE_VERSION
+}
+
+HIVE_VERSION=$(find_hive_version "$HIVE_HOME")
 # CLASSPATH initially contains $PIG_CONF_DIR
-CLASSPATH="${PIG_CONF_DIR}"
+CLASSPATH=${CLASSPATH}:"${PIG_CONF_DIR}"
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 if [ "$includeHCatalog" == "true" ]; then
   # need to provide the hcatalog jar file path as well as
@@ -158,14 +196,17 @@ if [ "$includeHCatalog" == "true" ]; then
   fbJar=libfb303-*.jar
   jdoECJar=jdo*-api-*.jar
   slfJar=slf4j-api-*.jar
+  jdo=datanucleus-api*.jar
+  jdocore=datanucleus-core*.jar
+  jdordbms=datanucleus-rdbms*.jar
+  hivejdbc=hive-jdbc*.jar
   hbaseHiveJar=hive-hbase-handler-*.jar
+  maprDbJsonCommon=hive-maprdb-json-common-*.jar
+  maprDbJsonHandler=hive-maprdb-json-handler-*.jar
+  maprSecurityWeb=mapr-security-web-*jar
   if [ "$HIVE_HOME" == "" ]; then
-    if [ -d "/usr/lib/hive" ]; then
-      HIVE_HOME=/usr/lib/hive
-    else
-      echo "Please initialize HIVE_HOME"
-      exit -1
-    fi
+    echo "Please initialize HIVE_HOME"
+    exit -1
   fi
 
   hiveMetaStoreVersion=`ls $HIVE_HOME/lib/$hiveMetaStoreJar`
@@ -173,8 +214,15 @@ if [ "$includeHCatalog" == "true" ]; then
   hiveExecVersion=`ls $HIVE_HOME/lib/$hiveExecJar`
   fbJarVersion=`ls $HIVE_HOME/lib/$fbJar`
   jdoECJarVersion=`ls $HIVE_HOME/lib/$jdoECJar`
-  slfJarVersion=`ls $HIVE_HOME/lib/$slfJar`
+  slfJarVersion=`ls $HIVE_HOME/lib/$slfJar 1> /dev/null 2>&1`
+  jdo=`ls $HIVE_HOME/lib/$jdo`
+  jdocore=`ls $HIVE_HOME/lib/$jdocore`
+  hivejdbc=`ls $HIVE_HOME/lib/$hivejdbc|grep -v "standalone"|grep -v "handler"`
+  jdordbms=`ls $HIVE_HOME/lib/$jdordbms`
   hbaseHiveVersion=`ls $HIVE_HOME/lib/$hbaseHiveJar`
+  maprDbJsonCommonVersion=`ls $HIVE_HOME/lib/$maprDbJsonCommon`
+  maprDbJsonHandlerVersion=`ls $HIVE_HOME/lib/$maprDbJsonHandler`
+  maprSecurityWebVersion=`ls $HIVE_HOME/lib/$maprSecurityWeb`
 
   # hcatalog jar name for 0.4 and earlier
   hcatJarOld=hcatalog-*.jar
@@ -183,10 +231,10 @@ if [ "$includeHCatalog" == "true" ]; then
   hbaseHCatJar=*hbase-storage-handler-*.jar
   pigHCatJar=*hcatalog-pig-adapter-*.jar
   if [ "$HCAT_HOME" == "" ]; then
-    if [ -d "/usr/lib/hcatalog" ]; then
-      HCAT_HOME=/usr/lib/hcatalog
-    elif [ -d "/usr/lib/hive-hcatalog" ]; then
-      HCAT_HOME=/usr/lib/hive-hcatalog
+    if [ -f "/usr/bin/hcat" ]; then
+      HCAT_HOME=$(find_home "/usr/bin/hcat")
+    elif [ -f "/usr/bin/hive-hcatalog" ]; then
+      HCAT_HOME=$(find_home "/usr/bin/hive-hcatalog")
     else
       echo "Please initialize HCAT_HOME"
       exit -1
@@ -209,8 +257,8 @@ if [ "$includeHCatalog" == "true" ]; then
   # get the pig storage handler jar
   pigHCatJarPath=`ls $HCAT_HOME/share/hcatalog/${pigHCatJar}`
 
-  HCAT_CLASSPATHS=$hiveMetaStoreVersion:$thriftVersion:$hiveExecVersion:$fbJarVersion:$jdoECJarVersion:$slfJarVersion:$hbaseHiveVersion:$hcatJarPath:$hbaseHCatJarPath:$pigHCatJarPath
-  ADDITIONAL_CLASSPATHS=file://$hiveMetaStoreVersion,file://$thriftVersion,file://$hiveExecVersion,file://$fbJarVersion,file://$jdoECJarVersion,file://$slfJarVersion,file://$hbaseHiveVersion,file://$hcatJarPath,file://$hbaseHCatJarPath,file://$pigHCatJarPath
+  HCAT_CLASSPATHS=$hiveMetaStoreVersion:$thriftVersion:$hiveExecVersion:$fbJarVersion:$jdoECJarVersion:$slfJarVersion:$hbaseHiveVersion:$hcatJarPath:$hbaseHCatJarPath:$pigHCatJarPath:$maprDbJsonCommonVersion:$maprDbJsonHandlerVersion:$maprSecurityWebVersion
+  ADDITIONAL_CLASSPATHS=file://$hiveMetaStoreVersion,file://$thriftVersion,file://$hiveExecVersion,file://$fbJarVersion,file://$jdoECJarVersion,file://$slfJarVersion,file://$hbaseHiveVersion,file://$hcatJarPath,file://$hbaseHCatJarPath,file://$pigHCatJarPath,file://$jdo,file://$jdocore,file://$hivejdbc,file://$jdordbms,file://$maprDbJsonCommonVersion,file://$maprDbJsonHandlerVersion,file://$maprSecurityWebVersion
   if [ "$additionalJars" != "" ]; then
     ADDITIONAL_CLASSPATHS=$ADDITIONAL_CLASSPATHS,$additionalJars
   fi
@@ -328,6 +376,12 @@ else
 fi
 
 # if using HBase, likely want to include HBase jars and config
+if which hbase >/dev/null; then
+ HBASE_JAR=$(hbase classpath)
+fi
+if [ -n "$HBASE_JAR" ]; then
+ CLASSPATH=${CLASSPATH}:$HBASE_JAR
+fi
 HBH=${HBASE_HOME:-"${PIG_HOME}/share/hbase"}
 if [ -d "${HBH}" ]; then
     for f in ${HBH}/hbase-*.jar; do
@@ -384,6 +438,8 @@ if [ "$includeHCatalog" == "true" ]; then
   PIG_OPTS="$PIG_OPTS -Dpig.additional.jars.uris=$ADDITIONAL_CLASSPATHS"
 fi
 
+export HADOOP_OPTS="${HADOOP_OPTS} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
+
 ################# ADDING SPARK DEPENDENCIES ##################
 # For spark_local mode:
 if [ "$isSparkLocalMode" == "true" ]; then
@@ -421,6 +477,29 @@ if [ "$isSparkMode"  == "true" ]; then
     PIG_OPTS="$PIG_OPTS -Dorg.apache.commons.logging.LogFactory=org.apache.commons.logging.impl.LogFactoryImpl"
 fi
 ################# ADDING SPARK DEPENDENCIES ##################
+
+# Adding mapr hive jars to classpath
+if [ "${HIVE_HOME}" != "" ]; then
+  HIVE_SHIMS=$(ls "${HIVE_HOME}"/lib/hive-shims-0."${HIVE_SHIMS_VER}"*jar)
+  HIVE_SHIMS_COMMON=$(ls "${HIVE_HOME}"/lib/hive-shims-common-"${HIVE_VERSION}"*jar)
+  HIVE_EXEC=$(ls "${HIVE_HOME}"/lib/hive-exec-"${HIVE_VERSION}"*jar)
+  HIVE_SERDE=$(ls "${HIVE_HOME}"/lib/hive-serde-"${HIVE_VERSION}"*jar)
+  HIVE_SHIMS_COMMON_SECURE=$(ls "${HIVE_HOME}"/lib/hive-shims-common-"${HIVE_VERSION}"*jar)
+  HIVE_METASTORE=$(ls "${HIVE_HOME}"/lib/hive-metastore-"${HIVE_VERSION}"*jar)
+fi
+
+CLASSPATH=${HIVE_METASTORE}:${HIVE_SHIMS}:${HIVE_SHIMS_COMMON}:${HIVE_EXEC}:${HIVE_SERDE}:${HIVE_SHIMS_COMMON_SECURE}:${CLASSPATH}
+
+# Adding data nucleus jars
+if [ "${HIVE_HOME}" != "" ]; then
+  JAVAX=$(ls "${HIVE_HOME}"/lib/javax.jdo-*jar)
+  JDO_API=$(ls "${HIVE_HOME}"/lib/jdo-api-*jar)
+  DATANUCLEUS_CORE=$(ls "${HIVE_HOME}"/lib/datanucleus-core-*jar)
+  DATANUCLEUS_API_JDO=$(ls "${HIVE_HOME}"/lib/datanucleus-api-jdo-*jar)
+  DATANUCLEUS_RDBMS=$(ls "${HIVE_HOME}"/lib/datanucleus-rdbms-*jar)
+fi
+
+CLASSPATH=${JAVAX}:${JDO_API}:${DATANUCLEUS_CORE}:${DATANUCLEUS_API_JDO}:${DATANUCLEUS_RDBMS}:${CLASSPATH}
 
 # run it
 if [ -n "$HADOOP_BIN" ]; then

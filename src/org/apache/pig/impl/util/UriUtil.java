@@ -25,7 +25,7 @@ public class UriUtil {
     public static boolean isHDFSFile(String uri){
         if(uri == null)
             return false;
-        if (uri.startsWith("/") || uri.startsWith("hdfs:") || uri.startsWith("viewfs:") ||
+        if (uri.startsWith("/") || uri.startsWith("maprfs:") || uri.startsWith("viewfs:") ||
                 uri.startsWith("hftp:") || uri.startsWith("webhdfs:")) {
             return true;
         }

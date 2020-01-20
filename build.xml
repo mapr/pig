@@ -38,7 +38,7 @@
     <property name="pigsmoke.pom" value="${basedir}/ivy/pigsmoke.pom" />
     <property name="pigunit.pom" value="${basedir}/ivy/pigunit.pom" />
     <property name="piggybank.pom" value="${basedir}/ivy/piggybank.pom" />
-    <property name="pig.version" value="0.17.0" />
+    <property name="pig.version" value="0.17.0.0-mapr" />
     <property name="pig.version.suffix" value="-SNAPSHOT" />
     <property name="version" value="${pig.version}${pig.version.suffix}" />
     <property name="final.name" value="${name}-${version}" />
@@ -77,7 +77,6 @@
 
     <!-- artifact jar file names -->
     <property name="artifact.pig.jar" value="${final.name}.jar"/>
-    <property name="artifact.pig-h2.jar" value="${final.name}-h2.jar"/>
     <property name="artifact.pig-sources.jar" value="${final.name}-sources.jar"/>
     <property name="artifact.pig-javadoc.jar" value="${final.name}-javadoc.jar"/>
     <property name="artifact.pig.tar" value="${final.name}.tar.gz"/>
@@ -86,11 +85,10 @@
     <property name="output.jarfile.withouthadoop" value="${build.dir}/${final.name}-withouthadoop.jar" />
     <property name="output.jarfile.withouthadoop-h2" value="${legacy.dir}/${final.name}-withouthadoop-h2.jar" />
     <property name="output.jarfile.core" value="${build.dir}/${artifact.pig.jar}" />
-    <property name="output.jarfile.core-h2" value="${build.dir}/${artifact.pig-h2.jar}" />
     <property name="output.jarfile.sources" value="${build.dir}/${artifact.pig-sources.jar}" />
     <property name="output.jarfile.javadoc" value="${build.dir}/${artifact.pig-javadoc.jar}" />
     <!-- Maintain old pig.jar in top level directory. -->
-    <property name="output.jarfile.backcompat-core-h2" value="${basedir}/${final.name}-core-h2.jar" />
+    <property name="output.jarfile.backcompat" value="${basedir}/${final.name}.jar" />
 
     <!-- test properties -->
     <condition property="test.exec.type" value="${exectype}" else="mr">
@@ -209,6 +207,13 @@
     <property name="loglevel" value="quiet" />
     <loadproperties srcfile="${ivy.dir}/libraries.properties"/>
 
+    <property name="rebuild.piggybank" value="false" />
+
+    <condition property="isSkipRebuildPiggybank">
+        <not>
+            <equals arg1="${rebuild.piggybank}" arg2="true"/>
+        </not>
+    </condition>
 
     <!--
       Hadoop master version
@@ -247,10 +252,10 @@
 
     <property name="asfrepo" value="https://repository.apache.org"/>
     <property name="asfsnapshotrepo" value="${asfrepo}/content/repositories/snapshots"/>
-    <property name="mvnrepo" value="http://repo2.maven.org/maven2"/>
+    <property name="mvnrepo" value="https://repo1.maven.org/maven2"/>
     <property name="asfstagingrepo" value="${asfrepo}/service/local/staging/deploy/maven2"/>
-    <property name="staging_repo_id" value="apache.staging.https"/>
-    <property name="snapshots_repo_id" value="apache.snapshots.https"/>
+    <property name="staging_repo_id" value="${env.MAPR_RELEASES_REPO}"/>
+    <property name="snapshots_repo_id" value="${env.MAPR_MAVEN_REPO}"/>
     <property name="ivy.jar" location="${ivy.dir}/ivy-${ivy.version}.jar"/>
     <property name="ant_task.jar" location="${ivy.dir}/maven-ant-tasks-${ant-task.version}.jar"/>
     <property name="ant_task_repo_url"   value="${mvnrepo}/org/apache/maven/maven-ant-tasks/${ant-task.version}/maven-ant-tasks-${ant-task.version}.jar"/>
@@ -436,7 +441,7 @@
     <!-- ================================================================== -->
     <!-- Clean.  Delete the build files, and their directories              -->
     <!-- ================================================================== -->
-    <target name="clean" description="Cleanup build artifacts">
+    <target name="clean" depends="clean-piggybank" description="Cleanup build artifacts">
         <delete dir="${src.gen.dir}" />
         <delete dir="${docs.dir}/build" />
         <delete file="${jdiff.xml.dir}\${name}_${version}.xml" />
@@ -664,9 +669,17 @@
        <jar duplicate="preserve" jarfile="${output.jarfile.sources}" basedir="${src.dir}/" excludes="docs/**, overview.html">
             <manifest>
                 <section name="org/apache/pig">
-                    <attribute name="Implementation-Vendor" value="Apache" />
-                    <attribute name="Implementation-Title" value="Pig" />
-                    <attribute name="Implementation-Version" value="${version}" />
+                     <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                     <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                     <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                     <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                     <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                     <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
+                     <attribute name="Implementation-Vendor" value="Apache" />
+                     <attribute name="Implementation-Title" value="Pig" />
+                     <attribute name="Implementation-Version" value="${version}" />
+                     <attribute name="Build-TimeStamp" value="${timestamp}" />
+                     <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
             <fileset dir="${src.lib.dir}/bzip2"/>
@@ -677,13 +690,26 @@
         <jar duplicate="preserve" jarfile="${output.jarfile.javadoc}" basedir="${build.javadoc}/">
             <manifest>
                 <section name="org/apache/pig">
+                    <attribute name="MapR-BuildDate" value="${mapr.builddate}"/>
+                    <attribute name="MapR-BuildHost" value="${mapr.buildhost}"/>
+                    <attribute name="MapR-BuildPlatform" value="${mapr.builduname}"/>
+                    <attribute name="MapR-BuildRevision" value="${mapr.buildversion}"/>
+                    <attribute name="MapR-BuildURL" value="${mapr.buildurl}"/>
+                    <attribute name="MapR-BuildUser" value="${mapr.builduser}"/>
                     <attribute name="Implementation-Vendor" value="Apache" />
                     <attribute name="Implementation-Title" value="Pig" />
                     <attribute name="Implementation-Version" value="${version}" />
+                    <attribute name="Build-TimeStamp" value="${timestamp}" />
+                    <attribute name="Svn-Revision" value="${svnString}" />
                 </section>
             </manifest>
         </jar>
     </target>
+
+    <!-- ================================================================== -->
+    <!-- Facade to build pig-core.jar                                       -->
+    <!-- ================================================================== -->
+    <target name="jar-all" depends="jar,pigperf,piggybank" description="Create pig, pigperf jar" />
 
     <!-- ================================================================== -->
     <!-- Make pig.jar                                                       -->
@@ -731,6 +757,11 @@
             <fileset dir="${ivy.lib.dir}" includes="parser-core-${basjes-httpdlog-pigloader.version}.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="ivy-*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="commons-logging-*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="sdsuLibJKD12.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="commons-io*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="parquet*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="jython*.jar"/>
+            <fileset dir="${ivy.lib.dir}" includes="commons-lang3-*.jar"/>
         </copy>
     </target>
 
@@ -750,7 +781,7 @@
             <fileset dir="${ivy.lib.dir}" includes="tez-*.jar"/>
             <fileset dir="${ivy.lib.dir}" includes="commons-collections4-*.jar"/>
         </copy>
-        <copy file="${output.jarfile.core}" tofile="${output.jarfile.backcompat-core-h2}"/>
+        <copy file="${output.jarfile.core}" tofile="${output.jarfile.backcompat}"/>
         <mkdir dir="${legacy.dir}" />
         <move file="${output.jarfile.withouthadoop}" tofile="${output.jarfile.withouthadoop-h2}"/>
     </target>
@@ -779,6 +810,16 @@
         <attribute name="value"/>
            project.setProperty(attributes.get("name"), attributes.get("value"));
     </scriptdef>
+
+    <target name="mvn-jar" description="Create pig.jar for maven deploy for Hadoop2/23">
+        <propertyreset name="hadoopversion" value="23" />
+        <propertyreset name="isHadoop" value="true" />
+        <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
+        <antcall target="clean" inheritRefs="true" inheritall="true"/>
+        <antcall target="jar" inheritRefs="true" inheritall="true"/>
+        <!-- Move and rename pig jar for Hadoop2/23 to a different location -->
+        <move file="${output.jarfile.core}" tofile="${basedir}/${artifact.pig.jar}"/>
+    </target>
 
     <macrodef name="propertycopy">
         <attribute name="name"/>
@@ -1076,7 +1117,7 @@
             <fileset dir="${lib.dir}"/>
         </copy>
 
-        <copy file="${output.jarfile.backcompat-core-h2}" tofile="${tar.dist.dir}/${final.name}-core-h2.jar" failonerror="false"/>
+        <copy file="${output.jarfile.backcompat}" tofile="${tar.dist.dir}/${final.name}.jar" failonerror="false"/>
 
         <copy todir="${tar.dist.dir}/lib" file="contrib/piggybank/java/piggybank.jar"/>
 
@@ -1242,7 +1283,7 @@
     <target name="mvn-install" depends="mvn-taskdef, mvn-build, set-version"
          description="To install pig to local filesystem's m2 cache">
          <artifact:pom file="${pig.pom}" id="pig"/>
-          <artifact:install file="${output.jarfile.core-h2}">
+          <artifact:install file="${output.jarfile.core}">
                <pom refid="pig"/>
            <attach file="${output.jarfile.sources}" classifier="sources" />
            <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
@@ -1261,10 +1302,10 @@
          </artifact:install>
     </target>
 
-    <target name="mvn-build" depends="jar, source-jar,
+    <target name="mvn-build" depends="mvn-jar, source-jar,
                                       javadoc-jar, smoketests-jar, pigunit-jar, piggybank"
          description="To build the pig jar artifacts to be deployed to apache maven repository">
-        <move file="${output.jarfile.backcompat-core-h2}" tofile="${output.jarfile.core-h2}"/>
+        <move file="${output.jarfile.backcompat}" tofile="${output.jarfile.core}"/>
     </target>
 
     <!-- Expects that mvn-build has already been run but does not run it. In some cases building
@@ -1762,12 +1803,58 @@
 
      <target name="published" depends="ivy-publish-local, maven-artifacts"/>
 
-     <target name="piggybank" depends="jar">
+     <target name="piggybank" depends="jar" unless="isSkipRebuildPiggybank">
          <ant antfile="contrib/piggybank/java/build.xml" inheritAll="false">
              <propertyset id="hadoop"> <propertyref name="hadoopversion"/> </propertyset>
          </ant>
      </target>
 
      <import file="./build-site.xml" optional="true"/>
+
+    <target name="mapr-version">
+     <echo file="${build.dir}/mapr-version.sh">
+    #!/bin/bash
+    build_user=$(whoami)
+    build_date=$(date)
+    build_cwd=$(pwd)
+    build_hostname=$(hostname)
+
+    if git status &gt; /dev/null 2&gt;&amp;1 ; then
+     scm=git
+     build_revision=$(git log -1 --pretty=format:&quot;%H&quot;)
+     build_url=$(git config --get remote.origin.url)
+    elif hg st &gt; /dev/null 2&gt;&amp;1 ; then
+     scm=hg
+     build_revision=$(hg ident -n | sed 's/[^0-9]//g')
+     build_url=$(hg paths | grep 'default' | sed 's/.*default[^=]*=\s*//g')
+    elif svn info &gt; /dev/null 2&gt;&amp;1 ; then
+     scm=svn
+     build_revision=$(svn info | sed -n -e 's/Last Changed Rev: \(.*\)/\1/p')
+     build_url=$(svn info | sed -n -e 's/URL: \(.*\)/\1/p')
+    else
+     scm=file
+     build_revision=&quot;Unknown&quot;
+    fi
+
+    if [ &quot;${build_url}&quot; = &quot;&quot; ] ; then
+     build_url=&quot;${scm}://${build_hostname}${build_cwd}&quot;
+    fi
+
+    build_uname=$(uname -a)
+    #MapR Version Info
+    cat &gt;mapr-build.properties &lt;&lt;EOF
+    mapr.buildurl=$build_url
+    mapr.builddate=$build_date
+    mapr.builduser=$build_user
+    mapr.builduname=$build_uname
+    mapr.buildhost=$build_hostname
+    mapr.buildversion=$build_revision
+    EOF
+     </echo>
+     <exec executable="sh" failonerror="true">
+     <arg line="${build.dir}/mapr-version.sh"/>
+     </exec>
+
+     </target>
 
 </project>
