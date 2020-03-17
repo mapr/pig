@@ -37,6 +37,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ConstantObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.hive.shims.Hadoop23Shims;
 import org.apache.hadoop.hive.shims.HadoopShimsSecure;
 import org.apache.hadoop.hive.shims.ShimLoader;
 import org.apache.hadoop.mapred.Counters;
@@ -48,6 +49,7 @@ import org.apache.pig.EvalFunc;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MRConfiguration;
 import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
+import org.apache.pig.hive.HiveShims;
 import org.apache.pig.impl.PigContext;
 import org.apache.pig.impl.util.UDFContext;
 import org.apache.pig.impl.util.Utils;
@@ -180,20 +182,7 @@ abstract class HiveUDFBase extends EvalFunc<Object> {
 
     @Override
     public List<String> getShipFiles() {
-        String hadoopVersion = "20S";
-        if (Utils.isHadoop23() || Utils.isHadoop2()) {
-            hadoopVersion = "23";
-        }
-        Class hadoopVersionShimsClass;
-        try {
-            hadoopVersionShimsClass = Class.forName("org.apache.hadoop.hive.shims.Hadoop" +
-                    hadoopVersion + "Shims");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Cannot find Hadoop" + hadoopVersion + "ShimsClass in classpath");
-        }
-        List<String> files = FuncUtils.getShipFiles(new Class[] {GenericUDF.class,
-                PrimitiveObjectInspector.class, HiveConf.class, Serializer.class, ShimLoader.class, 
-                hadoopVersionShimsClass, HadoopShimsSecure.class, Collector.class});
+        List<String> files = FuncUtils.getShipFiles(HiveShims.getHiveUDFDependentClasses(Hadoop23Shims.class));
         return files;
     }
 

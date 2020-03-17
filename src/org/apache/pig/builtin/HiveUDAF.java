@@ -106,7 +106,7 @@ public class HiveUDAF extends HiveUDFBase implements Algebraic {
                 if (udaf instanceof GenericUDAFResolver2) {
                     GenericUDAFParameterInfo paramInfo =
                             new SimpleGenericUDAFParameterInfo(
-                                    arguments, false, false);
+                                    arguments, false, false, false);
                     evaluator = ((GenericUDAFResolver2)udaf).getEvaluator(paramInfo);
                 } else {
                     TypeInfo[] params = ((StructTypeInfo)inputTypeInfo)
