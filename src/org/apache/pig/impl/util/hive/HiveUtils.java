@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.hadoop.hive.common.type.HiveChar;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
 import org.apache.hadoop.hive.common.type.HiveVarchar;
+import org.apache.hadoop.hive.ql.io.sarg.PredicateLeaf;
 import org.apache.hadoop.hive.serde2.io.HiveDecimalWritable;
 import org.apache.hadoop.hive.serde2.io.TimestampWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ConstantObjectInspector;
@@ -775,6 +776,30 @@ public class HiveUtils {
             return new JavaConstantStringObjectInspector((String)obj);
         default:
             throw new IllegalArgumentException("Not implemented " + obj.getClass().getName());
+        }
+    }
+
+    public static PredicateLeaf.Type getDataTypeForSearchArgs(byte dataType) {
+        switch (dataType) {
+            case DataType.INTEGER:
+                return PredicateLeaf.Type.LONG;
+            case DataType.LONG:
+                return PredicateLeaf.Type.LONG;
+            case DataType.DOUBLE:
+                return PredicateLeaf.Type.FLOAT;
+            case DataType.FLOAT:
+                return PredicateLeaf.Type.FLOAT;
+            case DataType.CHARARRAY:
+                return PredicateLeaf.Type.STRING;
+            case DataType.DATETIME:
+                return PredicateLeaf.Type.DATE;
+            case DataType.BIGINTEGER:
+            case DataType.BIGDECIMAL:
+                return PredicateLeaf.Type.DECIMAL;
+            case DataType.BOOLEAN:
+                return PredicateLeaf.Type.BOOLEAN;
+            default:
+                throw new RuntimeException("Unsupported data type:" + DataType.findTypeName(dataType));
         }
     }
 }
