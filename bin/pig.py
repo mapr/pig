@@ -348,7 +348,7 @@ if hadoopBin != "":
     pigJar = os.path.join(os.environ['PIG_HOME'], "pig-core-h$hadoopVersion.jar")
 
   else:
-    pigJars = glob.glob(os.path.join(os.environ['PIG_HOME'], "pig-*-core-h" + str(hadoopVersion) + ".jar"))
+    pigJars = glob.glob(os.path.join(os.environ['PIG_HOME'], "pig*-mapr*.jar"))
     if len(pigJars) == 1:
       pigJar = pigJars[0]
 
@@ -357,11 +357,11 @@ if hadoopBin != "":
       print pigJars
       sys.exit("Please remove irrelavant jars from %s" % os.path.join(os.environ['PIG_HOME'], "pig-*-core-h" + str(hadoopVersion) + ".jar"))
     else:
-      pigJars = glob.glob(os.path.join(os.environ['PIG_HOME'], "share", "pig", "pig-*-core-h" + str(hadoopVersion) + ".jar"))
+      pigJars = glob.glob(os.path.join(os.environ['PIG_HOME'], "share", "pig", "pig*-mapr*.jar"))
       if len(pigJars) == 1:
         pigJar = pigJars[0]
       else:
-        sys.exit("Cannot locate pig-core-h2.jar do 'ant jar', and try again")
+        sys.exit("Cannot locate pig*-mapr*.jar do 'ant jar', and try again")
 
   pigLibJars = glob.glob(os.path.join(os.environ['PIG_HOME']+"/lib", "h" + str(hadoopVersion), "*.jar"))
   for jar in pigLibJars:
@@ -392,11 +392,11 @@ else:
   if debug == True:
     print "Cannot find local hadoop installation, using bundled hadoop 2"
 
-  if os.path.exists(os.path.join(os.environ['PIG_HOME'], "pig-core-h2.jar")):
-    pigJar = os.path.join(os.environ['PIG_HOME'], "pig-core-h2.jar")
+  if os.path.exists(os.path.join(os.environ['PIG_HOME'], "pig*-mapr*.jar")):
+    pigJar = os.path.join(os.environ['PIG_HOME'], "pig*-mapr*.jar")
 
   else:
-    pigJars = glob.glob(os.path.join(os.environ['PIG_HOME'], "pig-*-core-h2.jar"))
+    pigJars = glob.glob(os.path.join(os.environ['PIG_HOME'], "pig*-mapr*.jar"))
 
     if len(pigJars) == 1:
       pigJar = pigJars[0]
@@ -406,7 +406,7 @@ else:
       print pigJars
       sys.exit("Please remove irrelavant jars from %s" % os.path.join(os.environ['PIG_HOME'], "pig-core-h2.jar"))
     else:
-      sys.exit("Cannot locate pig-core-h2.jar. do 'ant jar' and try again")
+      sys.exit("Cannot locate pig*-mapr*.jar. do 'ant jar' and try again")
 
   pigLibJars = glob.glob(os.path.join(os.environ['PIG_HOME']+"/lib", "h2", "*.jar"))
   for jar in pigLibJars:
