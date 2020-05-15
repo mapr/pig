@@ -237,12 +237,11 @@
     <property name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
     <property name="src.shims.test.dir" value="${basedir}/shims/test/hadoop${hadoopversion}" />
 
-    <property name="asfrepo" value="https://repository.apache.org"/>
-    <property name="asfsnapshotrepo" value="${asfrepo}/content/repositories/snapshots"/>
+    <property name="asfsnapshotrepo" value="${env.MAPR_MAVEN_REPO}"/>
     <property name="mvnrepo" value="https://repo1.maven.org/maven2"/>
-    <property name="asfstagingrepo" value="${asfrepo}/service/local/staging/deploy/maven2"/>
-    <property name="staging_repo_id" value="apache.staging.https"/>
-    <property name="snapshots_repo_id" value="apache.snapshots.https"/>
+    <property name="asfstagingrepo" value="${env.MAPR_RELEASES_REPO}"/>
+    <property name="staging_repo_id" value="mapr-releases"/>
+    <property name="snapshots_repo_id" value="mapr-snapshots"/>
     <property name="ivy.jar" location="${ivy.dir}/ivy-${ivy.version}.jar"/>
     <property name="ant_task.jar" location="${ivy.dir}/maven-ant-tasks-${ant-task.version}.jar"/>
     <property name="ant_task_repo_url"   value="${mvnrepo}/org/apache/maven/maven-ant-tasks/${ant-task.version}/maven-ant-tasks-${ant-task.version}.jar"/>
@@ -1319,19 +1318,27 @@
 
     <!-- Expects that mvn-build has already been run but does not run it. In some cases building
     might happen on one host and signing/uploading on another. Hence the decoupled tasks. -->
-    <target name="mvn-publish" depends="mvn-taskdef, set-version, signanddeploy, simpledeploy"
+    <target name="mvn-publish-snapshot" depends="mvn-taskdef, set-version, simpledeploy"
         description="To publish the pig jar artifacts to the apache maven repository">
     </target>
 
-    <target name="mvn-deploy" depends="mvn-build, mvn-publish"
+    <target name="mvn-publish-release" depends="mvn-taskdef, set-version, signanddeploy"
+            description="To publish the pig jar artifacts to the apache maven repository">
+    </target>
+
+    <target name="mvn-deploy-snapshot" depends="mvn-build, mvn-publish-snapshot"
          description="To build and upload pig jar to apache maven repository">
+    </target>
+
+    <target name="mvn-deploy-release" depends="mvn-build, mvn-publish-release"
+            description="To build and upload pig jar to apache maven repository">
     </target>
 
     <target name="signanddeploy" if="staging" depends="sign">
         <artifact:pom file="${pig.pom}" id="pig"/>
         <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
         <artifact:deploy file="${output.jarfile.core}">
-           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
            <pom refid="pig"/>
            <attach file="${output.jarfile.core}.asc" type="jar.asc"/>
            <attach file="${pig.pom}.asc" type="pom.asc"/>
@@ -1342,21 +1349,21 @@
         </artifact:deploy>
         <artifact:pom file="${pigunit.pom}" id="pigunit"/>
         <artifact:deploy file="${pigunit.jarfile}">
-           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
            <pom refid="pigunit"/>
            <attach file="${pigunit.jarfile}.asc" type="jar.asc"/>
            <attach file="${pigunit.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
         <artifact:deploy file="${smoke.tests.jarfile}">
-           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
            <pom refid="pigsmoke"/>
            <attach file="${smoke.tests.jarfile}.asc" type="jar.asc"/>
            <attach file="${pigsmoke.pom}.asc" type="pom.asc"/>
         </artifact:deploy>
         <artifact:pom file="${piggybank.pom}" id="piggybank"/>
         <artifact:deploy file="${piggybank.jarfile}">
-           <remoteRepository id="mapr-releases" url="${env.MAPR_MAVEN_REPO}"/>
+           <remoteRepository id="${staging_repo_id}" url="${asfstagingrepo}"/>
            <pom refid="piggybank"/>
            <attach file="${piggybank.jarfile}.asc" type="jar.asc"/>
            <attach file="${piggybank.pom}.asc" type="pom.asc"/>
@@ -1367,24 +1374,24 @@
       <artifact:pom file="${pig.pom}" id="pig"/>
       <artifact:install-provider artifactId="wagon-http" version="${wagon-http.version}"/>
       <artifact:deploy file="${output.jarfile.core}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
+              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
               <pom refid="pig"/>
               <attach file="${output.jarfile.sources}" classifier="sources" />
               <attach file="${output.jarfile.javadoc}" classifier="javadoc" />
       </artifact:deploy>
       <artifact:pom file="${pigunit.pom}" id="pigunit"/>
       <artifact:deploy file="${pigunit.jarfile}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
+              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
               <pom refid="pigunit"/>
       </artifact:deploy>
       <artifact:pom file="${pigsmoke.pom}" id="pigsmoke"/>
       <artifact:deploy file="${smoke.tests.jarfile}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
+              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
               <pom refid="pigsmoke"/>
       </artifact:deploy>
       <artifact:pom file="${piggybank.pom}" id="piggybank"/>
       <artifact:deploy file="${piggybank.jarfile}">
-              <remoteRepository id="mapr-snapshots" url="${env.MAPR_MAVEN_REPO}"/>
+              <remoteRepository id="${snapshots_repo_id}" url="${asfsnapshotrepo}"/>
               <pom refid="piggybank"/>
       </artifact:deploy>
     </target>
