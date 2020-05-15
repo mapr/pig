@@ -196,7 +196,7 @@
     <property name="loglevel" value="quiet" />
     <loadproperties srcfile="${ivy.dir}/libraries.properties"/>
 
-    <property name="hadoopversion" value="20" />
+    <property name="hadoopversion" value="23" />
     <property name="rebuild.piggybank" value="false" />
 
     <condition property="isSkipRebuildPiggybank">
@@ -709,23 +709,6 @@
     <target name="jar-all" depends="jar,pigperf,piggybank" description="Create pig, pigperf jar" />
 
     <!-- ================================================================== -->
-    <!-- Facede to build pig.jar for both Hadoop 1 and Hadoop 2             -->
-    <!-- ================================================================== -->
-    <target name="jar-h12" description="Create pig for both Hadoop 1 and Hadoop 2">
-        <propertyreset name="hadoopversion" value="20" />
-        <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
-        <antcall target="clean" inheritRefs="true" inheritall="true"/>
-        <antcall target="jar" inheritRefs="true" inheritall="true"/>
-        <antcall target="copyHadoop1LocalRuntimeDependencies"/>
-        <delete dir="${build.dir}" />
-        <propertyreset name="hadoopversion" value="23" />
-        <propertyreset name="hbase.hadoop.version" value="hadoop2" />
-        <propertyreset name="src.shims.dir" value="${basedir}/shims/src/hadoop${hadoopversion}" />
-        <propertyreset name="src.exclude.dir" value="" />
-        <antcall target="jar" inheritRefs="true" inheritall="true"/>
-    </target>
-
-    <!-- ================================================================== -->
     <!-- Make pig.jar                                                       -->
     <!-- ================================================================== -->
     <target name="jar" depends="compile,ivy-buildJar" description="Create pig core jar">
@@ -994,7 +977,6 @@
                     <patternset>
                        <includesfile name="@{test.file}"/>
                        <excludesfile name="${test.exclude.file}" if="test.exclude.file"/>
-                       <excludesfile name="${test.exclude.file.20}" unless="isHadoop23"/>
                        <excludesfile name="${test.exclude.file.23}" if="isHadoop23"/>
                        <excludesfile name="${test.exclude.file.for.exectype}"/>
                     </patternset>
@@ -1124,10 +1106,7 @@
     <!-- ================================================================== -->
     <!-- Distribution                                                       -->
     <!-- ================================================================== -->
-    <target name="package-h12" depends="jar-h12, docs, api-report, piggybank" description="Create a Pig tar release">
-        <package-base/>
-    </target>
-	
+
     <target name="package" depends="jar, docs, api-report, piggybank" description="Create a Pig tar release">
         <package-base/>
     </target>
@@ -1224,10 +1203,6 @@
         <tar-base/>
     </target>
 
-    <target name="tar-h12" depends="package-h12" description="Source distribution">
-        <tar-base/>
-    </target>
-
     <macrodef name="tar-base">
       <sequential>
         <tar compression="gzip" longfile="gnu" destfile="${build.dir}/${artifact.pig.tar}">
@@ -1313,7 +1288,7 @@
           uri="urn:maven-artifact-ant"
           classpathref="mvn-ant-task.classpath"/>
     </target>
-    <target name="mvn-install" depends="mvn-taskdef,jar-h12, mvn-jar, set-version, source-jar,
+    <target name="mvn-install" depends="mvn-taskdef, mvn-jar, set-version, source-jar,
       javadoc-jar, pigunit-jar, smoketests-jar, piggybank"
          description="To install pig to local filesystem's m2 cache">
          <artifact:pom file="${pig.pom}" id="pig"/>

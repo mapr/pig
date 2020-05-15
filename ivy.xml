@@ -38,7 +38,6 @@
     <conf name="jdiff" visibility="private"/>
     <conf name="checkstyle" visibility="private"/>
     <conf name="buildJar" extends="compile,test" visibility="private"/>
-    <conf name="hadoop20" visibility="private"/>
     <conf name="hadoop23" visibility="private"/>
     <conf name="hbase94" visibility="private"/>
     <conf name="hbase95" visibility="private"/>
@@ -115,10 +114,6 @@
       conf="hadoop23->master"/>
     <dependency org="log4j" name="log4j" rev="${log4j.version}"
       conf="compile->master"/>
-    <dependency org="com.sun.jersey" name="jersey-core" rev="${jersey-core.version}"
-      conf="hadoop20->default"/>
-    <dependency org="org.apache.hadoop" name="hadoop-test" rev="${hadoop-test.version}"
-      conf="hadoop20->default"/>
     <dependency org="org.apache.hadoop" name="hadoop-annotations" 
       rev="${hadoop-common.version}" conf="hadoop23->master"/>
     <dependency org="org.apache.hadoop" name="hadoop-auth" 
@@ -188,12 +183,6 @@
       conf="compile->default;checkstyle->master">
       <exclude org="org.codehaus.jackson" module="jackson-core-asl"/>
       <exclude org="org.codehaus.jackson" module="jackson-mapper-asl"/>
-    </dependency>
-    <dependency org="org.apache.avro" name="avro-mapred" rev="${avro.version}"
-      conf="hadoop20->default;checkstyle->master">
-      <exclude org="org.codehaus.jackson" module="jackson-core-asl"/>
-      <exclude org="org.codehaus.jackson" module="jackson-mapper-asl"/>
-      <exclude org="io.netty" module="netty"/>
     </dependency>
     <dependency org="org.apache.avro" name="avro-mapred" rev="${avro.version}"
       conf="hadoop23->default;checkstyle->master">
@@ -427,8 +416,6 @@
       conf="compile->master" />
     <dependency org="org.apache.hive.shims" name="hive-shims-0.23" rev="${hive.version}" changing="true"
       conf="hadoop23->master" />
-    <dependency org="org.apache.hive.shims" name="hive-shims-0.20S" rev="${hive.version}" changing="true"
-      conf="hadoop20->master" />
     <dependency org="org.apache.hive" name="hive-storage-api" rev="${hive.storage.api.version}" conf="compile->master" changing="true">
       <artifact name="hive-storage-api" />
     </dependency>
