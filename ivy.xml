@@ -253,6 +253,8 @@
 
     <dependency org="org.codehaus.plexus" name="plexus-utils" rev="${plexus-utils.version}" conf="compile->master"/>
 
+    <dependency org="org.apache.thrift" name="libthrift" rev="${libthrift.version}" conf="compile->master"/>
+
     <!-- HBase dependency in format for releases higher or equal to 0.95 -->
     <dependency org="org.apache.hbase" name="hbase-client" rev="${hbase1.version}" conf="hbase1->master">
       <artifact name="hbase-client" type="jar"/>
