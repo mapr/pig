@@ -425,6 +425,8 @@
         <exclude org="com.esotericsoftware.kryo" />
         <exclude org="jline" module="jline"/>
         <exclude org="com.google.guava" />
+        <exclude org="com.sun.jersey" module="jersey-core"/>
+        <exclude org="com.sun.jersey" module="jersey-server"/>
     </dependency>
     <dependency org="org.apache.spark" name="spark-yarn_2.11" rev="${spark.version}" conf="spark->default">
         <exclude org="org.apache.hadoop" />
