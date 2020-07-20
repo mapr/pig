@@ -17,7 +17,6 @@
  */
 package org.apache.pig;
 
-import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
