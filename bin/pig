@@ -194,7 +194,7 @@ if [ "$includeHCatalog" == "true" ]; then
   thriftJar=libthrift-*.jar
   hiveExecJar=hive-exec-*.jar
   fbJar=libfb303-*.jar
-  jdoECJar=jdo*-api-*.jar
+  jdoECJar=javax.jdo*.jar
   slfJar=slf4j-api-*.jar
   jdo=datanucleus-api*.jar
   jdocore=datanucleus-core*.jar
@@ -203,7 +203,7 @@ if [ "$includeHCatalog" == "true" ]; then
   hbaseHiveJar=hive-hbase-handler-*.jar
   maprDbJsonCommon=hive-maprdb-json-common-*.jar
   maprDbJsonHandler=hive-maprdb-json-handler-*.jar
-  maprSecurityWeb=mapr-security-web-*jar
+  maprSecurityWeb=mapr-security-web-*-mapr.jar
   if [ "$HIVE_HOME" == "" ]; then
     echo "Please initialize HIVE_HOME"
     exit -1
@@ -222,13 +222,12 @@ if [ "$includeHCatalog" == "true" ]; then
   hbaseHiveVersion=`ls $HIVE_HOME/lib/$hbaseHiveJar`
   maprDbJsonCommonVersion=`ls $HIVE_HOME/lib/$maprDbJsonCommon`
   maprDbJsonHandlerVersion=`ls $HIVE_HOME/lib/$maprDbJsonHandler`
-  maprSecurityWebVersion=`ls $HIVE_HOME/lib/$maprSecurityWeb`
+  maprSecurityWebVersion=`ls $BASEMAPR/lib/$maprSecurityWeb|grep -v "tests"`
 
   # hcatalog jar name for 0.4 and earlier
   hcatJarOld=hcatalog-*.jar
   # hcatalog jar name for 0.5 and newer
   hcatJar=*hcatalog-core-*.jar
-  hbaseHCatJar=*hbase-storage-handler-*.jar
   pigHCatJar=*hcatalog-pig-adapter-*.jar
   if [ "$HCAT_HOME" == "" ]; then
     if [ -f "/usr/bin/hcat" ]; then
@@ -246,19 +245,11 @@ if [ "$includeHCatalog" == "true" ]; then
     hcatJarPath=`ls $HCAT_HOME/share/hcatalog/$hcatJarOld | grep -v server`
   fi
 
-  # if we are using an older hcatalog version then the jar is on a different path
-  if [ -d "$HCAT_HOME/share/hcatalog/storage-handlers/hbase/lib" ]; then
-    # in 0.5 and newer we need to add multiple jars to the class path
-    hbaseHCatJarPath="$HCAT_HOME/share/hcatalog/storage-handlers/hbase/lib/*"
-  else
-    hbaseHCatJarPath=`ls $HCAT_HOME/lib/$hbaseHCatJar`
-  fi
-  
   # get the pig storage handler jar
   pigHCatJarPath=`ls $HCAT_HOME/share/hcatalog/${pigHCatJar}`
 
-  HCAT_CLASSPATHS=$hiveMetaStoreVersion:$thriftVersion:$hiveExecVersion:$fbJarVersion:$jdoECJarVersion:$slfJarVersion:$hbaseHiveVersion:$hcatJarPath:$hbaseHCatJarPath:$pigHCatJarPath:$maprDbJsonCommonVersion:$maprDbJsonHandlerVersion:$maprSecurityWebVersion
-  ADDITIONAL_CLASSPATHS=file://$hiveMetaStoreVersion,file://$thriftVersion,file://$hiveExecVersion,file://$fbJarVersion,file://$jdoECJarVersion,file://$slfJarVersion,file://$hbaseHiveVersion,file://$hcatJarPath,file://$hbaseHCatJarPath,file://$pigHCatJarPath,file://$jdo,file://$jdocore,file://$hivejdbc,file://$jdordbms,file://$maprDbJsonCommonVersion,file://$maprDbJsonHandlerVersion,file://$maprSecurityWebVersion
+  HCAT_CLASSPATHS=$hiveMetaStoreVersion:$thriftVersion:$hiveExecVersion:$fbJarVersion:$jdoECJarVersion:$slfJarVersion:$hbaseHiveVersion:$hcatJarPath:$pigHCatJarPath:$maprDbJsonCommonVersion:$maprDbJsonHandlerVersion:$maprSecurityWebVersion
+  ADDITIONAL_CLASSPATHS=file://$hiveMetaStoreVersion,file://$thriftVersion,file://$hiveExecVersion,file://$fbJarVersion,file://$jdoECJarVersion,file://$slfJarVersion,file://$hbaseHiveVersion,file://$hcatJarPath,file://$pigHCatJarPath,file://$jdo,file://$jdocore,file://$hivejdbc,file://$jdordbms,file://$maprDbJsonCommonVersion,file://$maprDbJsonHandlerVersion,file://$maprSecurityWebVersion
   if [ "$additionalJars" != "" ]; then
     ADDITIONAL_CLASSPATHS=$ADDITIONAL_CLASSPATHS,$additionalJars
   fi
