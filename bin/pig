@@ -507,11 +507,11 @@ if [ -n "$HADOOP_BIN" ]; then
         echo "Find hadoop at $HADOOP_BIN"
     fi
 
-    PIG_JAR=`echo $PIG_HOME/pig*-*mapr*.jar`
+    PIG_JAR=`echo $PIG_HOME/pig*-*eep*.jar`
 
     # for deb/rpm package, add pig jar in /usr/share/pig
     if [ -z "$PIG_JAR" ]; then
-        PIG_JAR=`echo $PIG_HOME/share/pig/pig*-mapr*.jar`
+        PIG_JAR=`echo $PIG_HOME/share/pig/pig*-eep*.jar`
     fi
 
     if [ -n "$PIG_JAR" ]; then
@@ -539,7 +539,7 @@ if [ -n "$HADOOP_BIN" ]; then
     fi
 else
     # use bundled hadoop to run local mode
-    PIG_JAR=`echo $PIG_HOME/pig*-mapr*.jar`
+    PIG_JAR=`echo $PIG_HOME/pig*-eep*.jar`
 
     if [ -n "$PIG_JAR" ]; then
         CLASSPATH="${CLASSPATH}:$PIG_JAR"
